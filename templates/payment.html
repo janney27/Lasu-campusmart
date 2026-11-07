@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment — LASU CampusMart</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='payment.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="payment-card">
+        
+        <div class="payment-header">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h2>Secure Checkout</h2>
+            <p>Select your payment method to complete the order.</p>
+        </div>
+
+        <div class="amount-box">
+            <span>Total to Pay:</span>
+            <strong>₦{{ "{:,.0f}".format(total|float) }}</strong>
+        </div>
+
+        <form id="paymentForm" action="{{ url_for('process_payment') }}" method="POST">
+            
+            <!-- PAYMENT METHOD SELECTOR -->
+            <div style="margin-bottom: 20px;">
+                <label class="form-label">Payment Method</label>
+                <div style="display: flex; gap: 10px;">
+                    <label style="flex: 1; border: 2px solid #16a34a; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: #f0fdf4;">
+                        <input type="radio" name="payment_method" value="card" checked onchange="togglePayment('card')" style="margin-right: 5px;">
+                        <i class="fa-solid fa-credit-card"></i> Card
+                    </label>
+                    <label style="flex: 1; border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; background: #fafafa;">
+                        <input type="radio" name="payment_method" value="transfer" onchange="togglePayment('transfer')" style="margin-right: 5px;">
+                        <i class="fa-solid fa-building-columns"></i> Transfer <span style="font-size: 10px; color: #e67e22;">(+₦50)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- CARD DETAILS (Visible by default) -->
+            <div id="card-details">
+                <div style="margin-bottom: 15px;">
+                    <label class="form-label">Cardholder Name</label>
+                    <input type="text" class="form-input" placeholder="e.g. Adebayo Johnson" required>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label class="form-label">Card Number</label>
+                    <div style="position: relative;">
+                        <input type="text" class="form-input" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                        <i class="fa-brands fa-cc-visa card-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label class="form-label">Expiry Date</label>
+                        <input type="text" class="form-input" placeholder="MM/YY" maxlength="5" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-input" placeholder="123" maxlength="3" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRANSFER DETAILS (Hidden by default) -->
+            <div id="transfer-details" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 8px; text-align: center;">
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">Transfer to the account below:</p>
+                <h3 style="color: #0b1aff; font-size: 18px; margin-bottom: 5px;">LASU CampusMart</h3>
+                <p style="font-size: 20px; font-weight: bold; letter-spacing: 2px; color: #111;">0123456789</p>
+                <p style="font-size: 13px; color: #64748b;">Sterling Bank</p>
+                <p style="font-size: 11px; color: #e67e22; margin-top: 10px;">A ₦50 processing fee will be added.</p>
+            </div>
+
+            <button type="submit" class="pay-btn">
+                <i class="fa-solid fa-lock"></i> Confirm Payment
+            </button>
+            
+        </form>
+
+        <a href="{{ url_for('checkout') }}" class="cancel-link">
+            <i class="fa-solid fa-arrow-left"></i> Cancel and return to checkout
+        </a>
+
+    </div>
+
+    <!-- SCRIPT TO TOGGLE CARD/TRANSFER -->
+    <script>
+        function togglePayment(method) {
+            const cardDiv = document.getElementById('card-details');
+            const transferDiv = document.getElementById('transfer-details');
+            const cardInputs = cardDiv.querySelectorAll('input');
+
+            if (method === 'card') {
+                cardDiv.style.display = 'block';
+                transferDiv.style.display = 'none';
+                cardInputs.forEach(input => input.required = true);
+            } else {
+                cardDiv.style.display = 'none';
+                transferDiv.style.display = 'block';
+                cardInputs.forEach(input => input.required = false);
+            }
+        }
+
+    
+        function togglePayment(method) {
+            const cardDiv = document.getElementById('card-details');
+            const transferDiv = document.getElementById('transfer-details');
+            const cardInputs = cardDiv.querySelectorAll('input');
+
+            if (method === 'card') {
+                cardDiv.style.display = 'block';
+                transferDiv.style.display = 'none';
+                cardInputs.forEach(input => input.required = true);
+            } else {
+                cardDiv.style.display = 'none';
+                transferDiv.style.display = 'block';
+                cardInputs.forEach(input => input.required = false);
+            }
+        }
+
+        // NEW: Delayed Processing Animation
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // STOP the form from submitting instantly
+            
+            const submitBtn = this.querySelector('.pay-btn');
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Card...';
+            submitBtn.style.opacity = '0.8';
+            submitBtn.style.backgroundColor = '#15803d';
+            
+            // Wait 2.5 seconds, THEN submit the form
+            setTimeout(() => {
+                this.submit();
+            }, 2500);
+        });
+    
+              
+    </script>
+
+</body>
+</html>

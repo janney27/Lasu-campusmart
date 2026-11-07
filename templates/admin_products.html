@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — LASU CampusMart Admin</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-lasu">LASU</span>
+            <h1>CampusMart</h1>
+            <p>Admin Panel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('admin_products') }}" class="active">
+                <i class="fa-solid fa-box"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="{{ url_for('sell') }}">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Add Product</span>
+            </a>
+
+            <a href="{{ url_for('admin_orders') }}">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Orders</span>
+            </a>
+
+            <a href="{{ url_for('admin_vendors') }}">
+                <i class="fa-solid fa-store"></i>
+                <span>Vendors</span>
+            </a>
+
+            <a href="{{ url_for('admin_inventory')}}">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>Inventory</span>
+            </a>
+
+            <a href="{{ url_for('admin_reports') }}">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+
+        </nav>
+
+        <a href="{{ url_for('admin_logout') }}" class="sidebar-logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <h2>Product Management</h2>
+            <div class="topbar-right">
+                <a href="{{ url_for('sell') }}" class="btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add Product
+                </a>
+                <div class="admin-avatar">A</div>
+            </div>
+        </header>
+
+
+        <section class="admin-content">
+
+            <!-- Stock filter tabs -->
+            <div class="order-filters">
+
+                <a href="{{ url_for('admin_products', search=search) }}"
+                   class="filter-tab {% if not stock_filter %}active{% endif %}">
+                    All ({{ total_count }})
+                </a>
+
+                <a href="{{ url_for('admin_products', search=search, stock='in') }}"
+                   class="filter-tab {% if stock_filter == 'in' %}active{% endif %}">
+                    🟢 In Stock ({{ in_stock_count }})
+                </a>
+
+                <a href="{{ url_for('admin_products', search=search, stock='low') }}"
+                   class="filter-tab {% if stock_filter == 'low' %}active{% endif %}">
+                    🟡 Low Stock ({{ low_stock_count }})
+                </a>
+
+                <a href="{{ url_for('admin_products', search=search, stock='out') }}"
+                   class="filter-tab {% if stock_filter == 'out' %}active{% endif %}">
+                    🔴 Out of Stock ({{ out_stock_count }})
+                </a>
+
+            </div>
+
+
+            <!-- Search bar -->
+            <div class="admin-toolbar">
+
+                <form method="GET"
+                      action="{{ url_for('admin_products') }}"
+                      class="admin-search-form">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    {% if stock_filter %}
+                    <input type="hidden" name="stock" value="{{ stock_filter }}">
+                    {% endif %}
+
+                    <input type="text"
+                           name="search"
+                           placeholder="Search products by name..."
+                           value="{{ search }}">
+
+                    {% if search %}
+                    <a href="{{ url_for('admin_products', stock=stock_filter) }}"
+                       class="clear-search"
+                       title="Clear">×</a>
+                    {% endif %}
+
+                    <button type="submit">Search</button>
+
+                </form>
+
+                <div class="product-count">
+                    Total: <strong>{{ products|length }}</strong> product(s)
+                </div>
+
+            </div>
+
+
+            <!-- Products table -->
+            <div class="content-card">
+
+                {% if products %}
+
+                <div class="table-scroll">
+
+                    <table class="admin-table admin-table-products">
+
+                        <thead>
+                            <tr>
+                                <th style="width: 65px;">Image</th>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Location</th>
+                                <th style="width: 80px; text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for p in products %}
+                            <tr>
+
+                                <td>
+                                    <img src="{% if p[6].startswith('http') %}{{ p[6] }}{% else %}{{ url_for('uploaded_file', filename=p[6]) }}{% endif %}"
+                                         alt="{{ p[1] }}"
+                                         class="product-thumb">
+                                </td>
+
+                                <td>
+                                    <div class="product-name-cell">
+                                        <strong>{{ p[1] }}</strong>
+                                        <span class="product-desc-preview">
+                                            {{ p[4][:60] }}{% if p[4]|length > 60 %}...{% endif %}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="category-tag">{{ p[3] }}</span>
+                                </td>
+
+                                <td class="text-right">
+                                    <strong>₦{{ "{:,.0f}".format(p[2]|float) }}</strong>
+                                </td>
+
+                                <td>
+                                    {% if p|length > 7 and p[7] is not none %}
+                                        {% set stock = p[7] %}
+
+                                        {% if stock <= 0 %}
+                                            <span class="stock-badge stock-out">Out of Stock</span>
+                                        {% elif stock <= 5 %}
+                                            <span class="stock-badge stock-low">Low: {{ stock }}</span>
+                                        {% else %}
+                                            <span class="stock-badge stock-in">In Stock: {{ stock }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="stock-badge stock-out">No Data</span>
+                                    {% endif %}
+
+                                    <form method="POST"
+                                          action="{{ url_for('admin_update_stock', product_id=p[0]) }}"
+                                          class="stock-edit-form"
+                                          title="Update stock">
+                                        <input type="number"
+                                               name="stock"
+                                               value="{{ p[7] if p|length > 7 and p[7] is not none else 0 }}"
+                                               min="0"
+                                               class="stock-input"
+                                               onchange="this.form.submit()">
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <span class="location-small">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        {{ p[5] }}
+                                    </span>
+                                </td>
+
+                                <td style="text-align: right;">
+
+                                    <a href="{{ url_for('delete_product', product_id=p[0]) }}?next={{ url_for('admin_products') }}"
+                                       class="action-btn delete-btn"
+                                       onclick="return confirm('Delete &quot;{{ p[1] }}&quot;? This cannot be undone.');">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="empty-state">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>No products found</h3>
+
+                    {% if search %}
+                    <p>No products match "{{ search }}".</p>
+                    <a href="{{ url_for('admin_products') }}" class="btn-primary">
+                        Clear search
+                    </a>
+                    {% else %}
+                    <p>Start by adding your first product.</p>
+                    <a href="{{ url_for('sell') }}" class="btn-primary">
+                        <i class="fa-solid fa-plus"></i> Add Product
+                    </a>
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

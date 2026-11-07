@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <style>
+        /* Dark theme to match your dashboard */
+        .jumia-profile { background: #000000; min-height: 100vh; font-family: Arial, sans-serif; padding-bottom: 50px; }
+        
+        .top-bar { background: #040d42; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eeeeee3f; }
+        .top-bar a { color: #fff; font-size: 18px; text-decoration: none; }
+        .top-bar h2 { color: #fff; font-size: 16px; margin-left: 15px; font-weight: bold; }
+        
+        .section-title { background: #000000; padding: 15px 15px 5px; font-size: 13px; font-weight: bold; color: #e0dede; }
+        
+        .menu-list { background: #0e0252e5; margin-bottom: 15px; border-top: 1px solid #eeeeee34; border-bottom: 1px solid #eeeeee36; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 15px; border-bottom: 1px solid #eeeeee21; text-decoration: none; color: #ece7e7; cursor: pointer; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item-left { display: flex; align-items: center; gap: 15px; font-size: 14px; }
+        .menu-item-left i { font-size: 18px; color: #f1f0f0; width: 20px; text-align: center; }
+        .menu-item .fa-chevron-right { color: #fdfafa; font-size: 12px; }
+        
+        /* Toggle Switch for Notifications */
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #0b1aff; }
+        input:checked + .slider:before { transform: translateX(18px); }
+    </style>
+</head>
+<body class="jumia-profile">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <a href="{{ url_for('profile') }}"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Settings</h2>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="section-title">Account Settings</div>
+    <div class="menu-list">
+        <a href="#" class="menu-item" onclick="alert('Address book feature coming soon!');">
+            <div class="menu-item-left"><i class="fa-solid fa-location-dot"></i> Address Book</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        
+        <div class="menu-item">
+            <div class="menu-item-left"><i class="fa-solid fa-bell"></i> Push Notifications</div>
+            <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <a href="{{ url_for('forgot_password') }}" class="menu-item">
+            <div class="menu-item-left"><i class="fa-solid fa-lock"></i> Change Password</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <!-- POLICIES & INFO -->
+    <div class="section-title">Policies & Information</div>
+    <div class="menu-list">
+        <a href="#" class="menu-item" onclick="alert('LASU CampusMart is an e-commerce platform for LASU students and staff.');">
+            <div class="menu-item-left"><i class="fa-solid fa-circle-info"></i> About LASU CampusMart</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#" class="menu-item" onclick="alert('Return policy: Items can be returned within 7 days if unused.');">
+            <div class="menu-item-left"><i class="fa-solid fa-file-shield"></i> Return & Refund Policy</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#" class="menu-item" onclick="alert('Privacy Policy: We do not share your data with third parties.');">
+            <div class="menu-item-left"><i class="fa-solid fa-user-shield"></i> Privacy Policy</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+
+        <a href="#" class="menu-item" onclick="alert('Terms of Service apply to all users of this platform.');">
+            <div class="menu-item-left"><i class="fa-solid fa-file-contract"></i> Terms & Conditions</div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="section-title">Danger Zone</div>
+    <div class="menu-list">
+        <a href="#" class="menu-item" onclick="if(confirm('Are you sure you want to close your account? This cannot be undone.')) { alert('Account deletion request received.'); }" style="color: #ff4c4c;">
+            <div class="menu-item-left" style="color: #ff4c4c;"><i class="fa-solid fa-user-slash" style="color: #ff4c4c;"></i> Close Account</div>
+            <i class="fa-solid fa-chevron-right" style="color: #ff4c4c;"></i>
+        </a>
+    </div>
+
+</body>
+</html>

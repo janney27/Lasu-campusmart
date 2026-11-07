@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Records — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <style>
+        .jumia-profile { background: #000000; min-height: 100vh; font-family: Arial, sans-serif; padding-bottom: 70px; }
+        .welcome-box { background: #460707; padding: 20px 15px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #eeeeee1a; }
+        .welcome-box a { color: #2030c0; font-size: 20px; text-decoration: none; }
+        .welcome-box h2 { font-size: 18px; color: #f1eaea; margin: 0; }
+        
+        .section-title { background: #0c016e; padding: 15px; font-size: 13px; font-weight: bold; color: #eeecec; }
+        
+        .record-card { background: #0e0252e5; margin: 15px; padding: 15px; border-radius: 8px; border: 1px solid #eeeeee21; color: #fff; }
+        .record-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }
+        .record-detail { font-size: 13px; color: #aaa; margin-bottom: 5px; }
+        
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 10px; }
+        .status-vendor { background: #f59e0b; color: #fff; }
+        .status-ready { background: #0b1aff; color: #fff; }
+        .status-delivered { background: #16a34a; color: #fff; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: #888; }
+        .empty-state i { font-size: 40px; color: #444; margin-bottom: 15px; }
+    </style>
+</head>
+<body class="jumia-profile">
+
+    <!-- TOP BAR -->
+    <div class="welcome-box">
+        <a href="{{ url_for('vendor_dashboard') }}"><i class="fa-solid fa-arrow-left"></i></a>
+        <h2>Payment Records</h2>
+    </div>
+
+    <!-- RECORDS LIST -->
+    <div class="section-title">Confirmed Payments</div>
+    
+    {% if payments %}
+        {% for payment in payments %}
+        <div class="record-card">
+            <div class="record-header">
+                <span>Order #{{ payment[0] }}</span>
+                <span style="color: #16a34a;">₦{{ "{:,.0f}".format(payment[2]|float) }}</span>
+            </div>
+            <div class="record-detail">Customer: {{ payment[1] }}</div>
+            <div class="record-detail">Date: {{ payment[4][:10] if payment[4] else 'Today' }}</div>
+            
+            {% if payment[3] == 'Vendor Confirmed' %}
+                <span class="status-badge status-vendor">Confirmed (Waiting for Admin)</span>
+            {% elif payment[3] == 'Ready for Delivery' %}
+                <span class="status-badge status-ready">Ready for Delivery</span>
+            {% elif payment[3] == 'Delivered' %}
+                <span class="status-badge status-delivered">Delivered</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fa-solid fa-receipt"></i>
+            <p>No confirmed payments yet.</p>
+        </div>
+    {% endif %}
+
+    <!-- BOTTOM MENU -->
+    <div class="bottom-menu" id="bottomMenu" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #700d0d; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        
+        <a href="{{ url_for('home') }}" style="text-align: center; text-decoration: none; color: #f5f1f1; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-house" style="font-size: 20px;"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="javascript:void(0);" onclick="alert('Vouchers are not available yet. Check back soon!');">
+    <i class="fa-solid fa-ticket" style="font-size: 20px;"></i>
+    <span>Voucher</span>
+</a>
+
+        <a href="{{ url_for('contact') }}" style="text-align: center; text-decoration: none; color: #f7f4f4; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-headset" style="font-size: 20px;"></i>
+            <span>Support</span>
+        </a>
+
+        <a href="{{ url_for('cart') }}" style="text-align: center; text-decoration: none; color: #fffcfc; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
+            <span>Cart</span>
+        </a>
+
+        <a href="{{ url_for('wishlist') }}" style="text-align: center; text-decoration: none; color: #f5f2f2; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-regular fa-heart" style="font-size: 20px;"></i>
+            <span>Wishlist</span>
+        </a>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — LASU CampusMart</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='home.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css"
+          rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+
+<body class="checkout-page">
+
+    <!-- TOP BAR -->
+    <div class="checkout-topbar">
+        <a href="{{ url_for('cart') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>Checkout</h2>
+        <div style="width: 24px;"></div>
+    </div>
+
+
+    <!-- ORDER SUMMARY -->
+    <div class="checkout-summary">
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₦{{ "{:,.0f}".format(total) }}</span>
+        </div>
+        <div class="summary-row" id="deliveryFeeRow" style="display: none;">
+            <span>Delivery Fee</span>
+            <span id="deliveryFee">₦500</span>
+        </div>
+        <div class="summary-row summary-total">
+            <span>Total</span>
+            <span id="grandTotal">₦{{ "{:,.0f}".format(total) }}</span>
+        </div>
+    </div>
+
+
+    <!-- FORM -->
+    <form action="{{ url_for('place_order') }}" method="POST" class="checkout-form">
+
+        <h3 class="section-title">Delivery Information</h3>
+
+        <div class="input-family">
+
+            <!-- Full Name -->
+            <div class="input-group">
+                <label>Full Name *</label>
+                <input class="input-form"
+                       type="text"
+                       name="full_name"
+                       placeholder="e.g. Adebayo Johnson"
+                       required>
+            </div>
+
+            <!-- Phone -->
+            <div class="input-group">
+                <label>Phone Number *</label>
+                <input class="input-form"
+                       type="tel"
+                       name="phone"
+                       placeholder="e.g. 08012345678"
+                       required>
+            </div>
+
+            <!-- Delivery Method -->
+            <div class="input-group">
+                <label>Delivery Method *</label>
+
+                <div class="delivery-options">
+
+                    <label class="delivery-option">
+                        <input type="radio" name="delivery_type" value="pickup" checked>
+                        <div class="option-content">
+                            <i class="fa-solid fa-store"></i>
+                            <div>
+                                <strong>Pickup</strong>
+                                <span>Free — pick up at LASU ICT Centre</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="delivery-option">
+                        <input type="radio" name="delivery_type" value="delivery">
+                        <div class="option-content">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <div>
+                                <strong>Delivery</strong>
+                                <span>₦500 — delivered to you on campus</span>
+                            </div>
+                        </div>
+                    </label>
+
+                </div>
+            </div>
+
+            <!-- Delivery Address (only for delivery) -->
+            <div class="input-group" id="addressField" style="display: none;">
+                <label>Delivery Address (Building / Hostel / Room) *</label>
+                <input class="input-form"
+                       type="text"
+                       name="address"
+                       placeholder="e.g. Moremi Hall, Block C, Room 204">
+            </div>
+
+            <!-- Location (only for delivery) -->
+            <div class="input-group" id="locationField" style="display: none;">
+                <label>Select Your Location *</label>
+
+                <select id="location-select" name="city" placeholder="Search for your location...">
+                    <option value="">Search for your location...</option>
+
+                    <optgroup label="🏛️ Faculties">
+                        <option value="Faculty of Science">Faculty of Science</option>
+                        <option value="Faculty of Engineering">Faculty of Engineering</option>
+                        <option value="Faculty of Law">Faculty of Law</option>
+                        <option value="Faculty of Arts">Faculty of Arts</option>
+                        <option value="Faculty of Social Sciences">Faculty of Social Sciences</option>
+                        <option value="Faculty of Management Sciences">Faculty of Management Sciences</option>
+                        <option value="Faculty of Education">Faculty of Education</option>
+                        <option value="College of Medicine">College of Medicine (LASUCOM)</option>
+                    </optgroup>
+
+                    <optgroup label="🏠 Student Hostels">
+                        <option value="Moremi Hall">Moremi Hall</option>
+                        <option value="Fagunwa Hall">Fagunwa Hall</option>
+                        <option value="Sodeinde Hall">Sodeinde Hall</option>
+                        <option value="Onasanya Hall">Onasanya Hall</option>
+                        <option value="Female Hostel (Off Campus)">Female Hostel (Off Campus)</option>
+                        <option value="Male Hostel (Off Campus)">Male Hostel (Off Campus)</option>
+                    </optgroup>
+
+                    <optgroup label="🏢 Admin & Common Areas">
+                        <option value="Senate Building">Senate Building</option>
+                        <option value="ICT Centre">ICT Centre</option>
+                        <option value="Library">University Library</option>
+                        <option value="Student Union Building">Student Union Building</option>
+                        <option value="Sports Complex">Sports Complex</option>
+                        <option value="Main Gate">Main Gate</option>
+                    </optgroup>
+
+                </select>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="place-order-btn">
+                <i class="fa-solid fa-check"></i>
+                Place Order
+            </button>
+
+        </div>
+    </form>
+
+
+    <!-- DELIVERY FEE LOGIC + TOM SELECT -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // ==== Tom Select for location dropdown ====
+        let tomSelectInstance = null;
+        const locationSelectEl = document.getElementById('location-select');
+
+        if (locationSelectEl) {
+            tomSelectInstance = new TomSelect("#location-select", {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                maxOptions: 100,
+            });
+        }
+
+        // ==== Delivery vs Pickup toggle ====
+        const radios = document.querySelectorAll('input[name="delivery_type"]');
+        const addressField = document.getElementById('addressField');
+        const locationField = document.getElementById('locationField');
+        const deliveryFeeRow = document.getElementById('deliveryFeeRow');
+        const addressInput = addressField.querySelector('input');
+        const grandTotalEl = document.getElementById('grandTotal');
+
+        // Subtotal passed from Jinja (safe)
+        const subtotal = parseFloat("{{ total|float }}") || 0;
+        const DELIVERY_FEE = 500;
+
+        function formatNaira(amount) {
+            return '₦' + amount.toLocaleString('en-NG');
+        }
+
+        function updateUI() {
+            const selected = document.querySelector('input[name="delivery_type"]:checked');
+
+            if (!selected) return;
+
+            if (selected.value === 'delivery') {
+                addressField.style.display = 'block';
+                locationField.style.display = 'block';
+                deliveryFeeRow.style.display = 'flex';
+
+                addressInput.required = true;
+                if (locationSelectEl) locationSelectEl.required = true;
+
+                grandTotalEl.textContent = formatNaira(subtotal + DELIVERY_FEE);
+
+                // Refresh Tom Select when showing
+                if (tomSelectInstance) {
+                    setTimeout(() => tomSelectInstance.sync(), 0);
+                }
+
+            } else {
+                addressField.style.display = 'none';
+                locationField.style.display = 'none';
+                deliveryFeeRow.style.display = 'none';
+
+                addressInput.required = false;
+                if (locationSelectEl) locationSelectEl.required = false;
+
+                grandTotalEl.textContent = formatNaira(subtotal);
+            }
+        }
+
+        radios.forEach(r => r.addEventListener('change', updateUI));
+        updateUI();
+    });
+</script>
+</body>
+</html>

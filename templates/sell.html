@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Post Your Product</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="upload-container">
+
+        <h1>Post Your Product</h1>
+
+        <p class="subtitle">
+            Sell your car, laptop, phone and more.
+        </p>
+
+
+        <!-- IMPORTANT: This connects the form to Flask -->
+        <form id="productForm"
+              action="/post"
+              method="POST"
+              enctype="multipart/form-data">
+
+
+            <!-- Product Image -->
+
+            <div class="form-group">
+
+                <label>Product Image</label>
+
+                <div class="image-upload">
+
+                    <input
+                        type="file"
+                        id="productImage"
+                        name="product_image"
+                        accept="image/*"
+                        required
+                    >
+
+                    <label for="productImage" class="upload-box">
+
+                        <span>+</span>
+
+                        <p>Add Image</p>
+
+                    </label>
+
+                </div>
+
+                <img
+                    id="imagePreview"
+                    class="image-preview"
+                    alt="Image preview"
+                >
+
+            </div>
+
+
+            <!-- Product Name -->
+
+            <div class="form-group">
+
+                <label for="productName">
+                    Product Name
+                </label>
+
+                <input
+                    type="text"
+                    id="productName"
+                    name="product_name"
+                    placeholder="e.g. Toyota Camry 2020"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Price -->
+
+            <div class="form-group">
+
+                <label for="price">
+                    Price
+                </label>
+
+                <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    placeholder="₦ Enter price"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Category -->
+
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <select
+                    id="category"
+                    name="category"
+                    required
+                >
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="car">
+                        🚗 Car
+                    </option>
+
+                    <option value="laptop">
+                        💻 Laptop
+                    </option>
+
+                    <option value="phone">
+                        📱 Phone
+                    </option>
+
+                    <option value="other">
+                        📦 Other
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Description -->
+
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    placeholder="Describe your product..."
+                    rows="5"
+                    required
+                ></textarea>
+
+            </div>
+
+
+            <!-- Location -->
+
+            <div class="form-group">
+
+                <label for="location">
+                    Location
+                </label>
+
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    placeholder="e.g. Lagos, Nigeria"
+                    required
+                >
+
+            </div>
+
+
+            <!-- Submit -->
+
+            <button
+                type="submit"
+                class="post-btn"
+            >
+                Post Item
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Your JavaScript -->
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

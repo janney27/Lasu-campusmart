@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <style>
+        .vendor-page { background: #12151b; min-height: 100vh; padding: 20px; font-family: Arial, sans-serif; }
+        .order-card { background: rgb(4, 5, 75); max-width: 500px; margin: 0 auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #d3d0d050; font-size: 14px; color: aliceblue;}
+        .action-btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; color: white; }
+        
+        /* Animation CSS */
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .success-animation { display: none; text-align: center; padding: 30px; background: #dcfce7; border-radius: 12px; margin-top: 20px; animation: popIn 0.5s ease-out; }
+    </style>
+</head>
+<body class="vendor-page">
+
+    <div class="order-card">
+        <h2 style="text-align: center; color: #0b1aff; margin-bottom: 20px;">Order #{{ order[0] }}</h2>
+        
+        <div class="detail-row"><strong>Customer:</strong> <span style="color: #dcfce7;">{{ order[1] }}</span></div>
+        <div class="detail-row"><strong>Phone:</strong> <span style="color: #dcfce7;">{{ order[2] }}</span></div>
+        <div class="detail-row"><strong>Address:</strong> <span style="color: #dcfce7;">{{ order[3] }}, {{ order[4] }}</span></div>
+        <div class="detail-row"><strong>Total Paid:</strong> <span style="color: #16a34a; font-weight: bold;">₦{{ "{:,.0f}".format(order[5]|float) }}</span></div>
+        <div class="detail-row"><strong>Status:</strong> <span style="font-weight: bold; color: #dcfce7;">{{ order[6] }}</span></div>
+
+        <!-- ACTION BUTTONS BASED ON STATUS -->
+        
+        {% if order[6] == 'Pending Vendor' %}
+            <form action="{{ url_for('vendor_confirm_payment', order_id=order[0]) }}" method="POST">
+                <button type="submit" class="action-btn" style="background: #0b1aff;" onclick="return confirm('Confirm you have received the payment?');">
+                    <i class="fa-solid fa-check-double"></i> Confirm Payment Received
+                </button>
+            </form>
+        
+        {% elif order[6] == 'Vendor Confirmed' %}
+            <div style="background: #fef3c7; color: #92400e; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 14px;">
+                <i class="fa-solid fa-hourglass-half"></i> Waiting for Admin to verify and mark as "Ready for Delivery".
+            </div>
+
+        {% elif order[6] == 'Ready for Delivery' %}
+            <form action="{{ url_for('vendor_deliver_order', order_id=order[0]) }}" method="POST">
+                <button type="submit" class="action-btn" style="background: #16a34a;">
+                    <i class="fa-solid fa-truck-fast"></i> Mark as Delivered
+                </button>
+            </form>
+
+        {% elif order[6] == 'Delivered' %}
+            <!-- THE ANIMATION -->
+            <div class="success-animation" id="deliveryAnim">
+                <i class="fa-solid fa-circle-check" style="font-size: 50px; color: #16a34a; margin-bottom: 15px;"></i>
+                <h2 style="color: #166534; margin-bottom: 5px;">Delivery Successful!</h2>
+                <p style="color: #166534; font-size: 14px;">Waiting for the customer's delivery code...</p>
+            </div>
+        {% endif %}
+        
+        <a href="{{ url_for('vendor_dashboard') }}" style="display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; font-size: 13px;">← Back to Dashboard</a>
+    </div>
+
+    <!-- SCRIPT TO TRIGGER THE ANIMATION -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const anim = document.getElementById('deliveryAnim');
+            if (anim) {
+                // Show the animation with a slight delay for the pop effect
+                setTimeout(() => { anim.style.display = 'block'; }, 100);
+            }
+        });
+    </script>
+
+</body>
+</html>

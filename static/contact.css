@@ -1,0 +1,225 @@
+body{
+    background:linear-gradient(black, rgb(59, 58, 58));
+}
+.contact-page {
+    background-color: #050513d8;
+    padding-bottom: 30px;
+    font-family: Arial, sans-serif;
+}
+
+/* Top bar */
+.contact-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #03136dd3;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.contact-topbar h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f3f2f2;
+}
+
+.back-btn {
+    color: #1f2144;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+/* Hero */
+.contact-hero {
+    text-align: center;
+    padding: 40px 20px 25px;
+    background-color: #12077496;
+}
+
+.hero-icon {
+    width: 70px;
+    height: 70px;
+    background-color: #0b1bffcb;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 15px;
+    box-shadow: 0 8px 20px rgba(11, 26, 255, 0.25);
+}
+
+.contact-hero h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f8f6f6;
+    margin-bottom: 8px;
+}
+
+.contact-hero p {
+    font-size: 13px;
+    color: #b8a2a2;
+    max-width: 380px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Contact channels */
+.contact-channels {
+    padding: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.contact-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #160b7e94;
+    padding: 15px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(71, 69, 69, 0.08);
+}
+
+.contact-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+.phone-icon    { background-color: #0b1aff; }
+.email-icon    { background-color: #e67e22; }
+.whatsapp-icon { background-color: #25d366; }
+.location-icon { background-color: #9333ea; }
+
+.contact-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.contact-info h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fcf8f8;
+    margin-bottom: 3px;
+}
+
+.contact-info p {
+    font-size: 13px;
+    color: #beb1b1;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.contact-info span {
+    font-size: 11px;
+    color: #999;
+}
+
+.contact-arrow {
+    color: #ccc;
+    font-size: 13px;
+}
+
+/* FAQ */
+.contact-faq {
+    max-width: 600px;
+    margin: 25px auto 0;
+    padding: 0 15px;
+}
+
+.contact-faq h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8f2f2;
+    margin-bottom: 12px;
+}
+
+.contact-faq details {
+    background-color: #081270dc;
+    padding: 15px 18px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.contact-faq summary {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.contact-faq summary::after {
+    content: "＋";
+    color: #0b1aff;
+    font-size: 16px;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.contact-faq details[open] summary::after {
+    content: "−";
+}
+
+.contact-faq details p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+
+.contact-footer {
+    text-align: center;
+    margin-top: 25px;
+    padding: 0 15px;
+}
+
+.back-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0b1172d0;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.back-home-btn:hover {
+    background-color: #0813cc;
+    transform: translateY(-2px);
+}

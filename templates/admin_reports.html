@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports — LASU CampusMart Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-lasu">LASU</span>
+            <h1>CampusMart</h1>
+            <p>Admin Panel</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}">
+                <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_products') }}">
+                <i class="fa-solid fa-box"></i><span>Products</span>
+            </a>
+            <a href="{{ url_for('sell') }}">
+                <i class="fa-solid fa-circle-plus"></i><span>Add Product</span>
+            </a>
+            <a href="{{ url_for('admin_orders') }}">
+                <i class="fa-solid fa-receipt"></i><span>Orders</span>
+            </a>
+            <a href="{{ url_for('admin_vendors') }}">
+                <i class="fa-solid fa-store"></i><span>Vendors</span>
+            </a>
+            <a href="{{ url_for('admin_inventory') }}">
+                <i class="fa-solid fa-warehouse"></i><span>Inventory</span>
+            </a>
+            <a href="{{ url_for('admin_reports') }}" class="active">
+                <i class="fa-solid fa-chart-pie"></i><span>Reports</span>
+            </a>
+        </nav>
+        <a href="{{ url_for('admin_logout') }}" class="sidebar-logout">
+            <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <h2>Sales Reports</h2>
+            <div class="topbar-right">
+                <span class="welcome-text">Welcome back, <strong>Admin</strong></span>
+                <div class="admin-avatar">A</div>
+            </div>
+        </header>
+
+        <section class="admin-content">
+
+            <!-- ===== STAT CARDS ===== -->
+            <div class="stats-grid">
+
+                <div class="stat-card stat-revenue">
+                    <div class="stat-icon"><i class="fa-solid fa-naira-sign"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Revenue</p>
+                        <h3 class="stat-value">₦{{ "{:,.0f}".format(total_revenue|float) }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-orders">
+                    <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Orders</p>
+                        <h3 class="stat-value">{{ total_orders }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-products">
+                    <div class="stat-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Avg Order Value</p>
+                        <h3 class="stat-value">₦{{ "{:,.0f}".format(avg_order|float) }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-users">
+                    <div class="stat-icon"><i class="fa-solid fa-crown"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Best Day</p>
+                        <h3 class="stat-value" style="font-size: 16px;">{{ best_day }}</h3>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ===== CHARTS ROW ===== -->
+            <div class="reports-charts">
+
+                <div class="content-card chart-card">
+                    <div class="content-card-header">
+                        <h3>Revenue (Last 7 Days)</h3>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="content-card chart-card">
+                    <div class="content-card-header">
+                        <h3>Revenue by Category</h3>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ===== TOP ORDERS TABLE ===== -->
+            <div class="content-card">
+                <div class="content-card-header">
+                    <h3>🏆 Top 5 Orders by Value</h3>
+                    <a href="{{ url_for('admin_orders') }}">View all →</a>
+                </div>
+
+                {% if top_orders %}
+                <div class="table-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Customer</th>
+                                <th>City</th>
+                                <th>Date</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in top_orders %}
+                            <tr>
+                                <td><span class="order-id">#{{ o[0] }}</span></td>
+                                <td><strong>{{ o[1] }}</strong></td>
+                                <td>{{ o[3] }}</td>
+                                <td class="order-date">{{ o[4][:10] if o[4] else '—' }}</td>
+                                <td class="text-right">
+                                    ₦{{ "{:,.0f}".format(o[2]|float) }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-receipt"></i>
+                    <h3>No orders yet</h3>
+                    <p>Reports will appear once customers place orders.</p>
+                </div>
+                {% endif %}
+            </div>
+
+        </section>
+    </main>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // ===== REVENUE LINE CHART =====
+        const revenueLabels = [
+            {% for day, total in daily_revenue %}
+                "{{ day }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const revenueValues = [
+            {% for day, total in daily_revenue %}
+                {{ (total if total else 0)|float }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const revenueCanvas = document.getElementById('revenueChart');
+
+        if (revenueCanvas && typeof Chart !== 'undefined') {
+            new Chart(revenueCanvas, {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Revenue (₦)',
+                        data: revenueValues,
+                        borderColor: '#0b1aff',
+                        backgroundColor: 'rgba(11, 26, 255, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#0b1aff',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (v) {
+                                    return '₦' + v.toLocaleString('en-NG');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // ===== CATEGORY DOUGHNUT CHART =====
+        const catLabels = [
+            {% for cat, total in category_revenue %}
+                "{{ cat }}"{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const catValues = [
+            {% for cat, total in category_revenue %}
+                {{ (total if total else 0)|float }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const catCanvas = document.getElementById('categoryChart');
+
+        if (catCanvas && typeof Chart !== 'undefined') {
+            new Chart(catCanvas, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catValues,
+                        backgroundColor: [
+                            '#0b1aff',
+                            '#16a34a',
+                            '#e67e22',
+                            '#9333ea',
+                            '#dc2626',
+                            '#0891b2'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+    });
+</script>
+</body>
+</html>

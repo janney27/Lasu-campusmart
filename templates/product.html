@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ product[1] }} - LASU</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='home.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+          integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+</head>
+
+<body>
+
+    
+    <div class="product-topbar">
+        <a href="{{ url_for('home') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>Product Details</h2>
+        <div class="topbar-icons">
+            <i class="fa-solid fa-share-nodes"onclick="alert('share are not available yet. Coming soon!');"></i>
+            <a href="{{ url_for('wishlist')}}">
+            <i class="fa-regular fa-heart"></i>
+            </a>
+        </div>
+    </div>
+
+
+    <div class="product-image-wrap">
+        <img src="{% if product[6].startswith('http') %}{{ product[6] }}{% else %}{{ url_for('uploaded_file', filename=product[6]) }}{% endif %}"
+     alt="{{ product[1] }}"
+     class="main-product-image">
+
+        <div class="image-count">
+            <i class="fa-solid fa-camera"></i> 1/1
+        </div>
+    </div>
+
+
+    <div class="product-main-card">
+
+        <!-- Location -->
+        <div class="location-row">
+            <span class="location">
+                <i class="fa-solid fa-location-dot"></i>
+                {{ product[5] }}
+            </span>
+            <span class="time-posted">Today</span>
+        </div>
+
+        <!-- Product name -->
+        <h1 class="product-title">{{ product[1] }}</h1>
+
+        <!-- Price -->
+        <div class="price-row">
+            {% set p_stock = product[7] if product|length > 7 and product[7] is not none else 10 %}
+
+{% if p_stock <= 0 %}
+    <p class="stock-note out">🔴 This item is currently out of stock</p>
+{% elif p_stock <= 5 %}
+    <p class="stock-note low">⚡ Hurry — only {{ p_stock }} left in stock</p>
+{% else %}
+    <p class="stock-note in">🟢 In stock — {{ p_stock }} available</p>
+{% endif %}
+            <span class="price-history">
+                Price History <i class="fa-solid fa-chevron-right"></i>
+            </span>
+        </div>
+
+        <!-- Description -->
+        <p class="product-description">{{ product[4] }}</p>
+
+        
+        <div class="action-buttons">
+          
+                {% set p_stock = product[7] if product|length > 7 and product[7] is not none else 10 %}
+
+{% if p_stock <= 0 %}
+
+    <button class="btn-add-cart btn-disabled" disabled>
+        <i class="fa-solid fa-xmark"></i> Out of Stock
+    </button>
+
+{% else %}
+
+    <a href="{{ url_for('add_to_cart', product_id=product[0]) }}" class="cart-link">
+        <button class="btn-add-cart">
+            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+        </button>
+    </a>
+
+{% endif %}
+       <a href="{{ url_for('wishlist_toggle', product_id=product[0]) }}"
+   class="btn-wishlist">
+    <i class="fa-solid fa-heart"></i> Wishlist
+</a>
+        </div>
+       </a>
+        
+
+        <div class="market-price">
+            Market price: ₦{{ "{:,.0f}".format((product[2]|float) * 1.05) }}
+            ~ ₦{{ "{:,.0f}".format((product[2]|float) * 1.10) }}
+        </div>
+    </div>
+
+
+    <!-- =========================================
+         CHAT WITH SELLER CARD
+         ========================================= -->
+    <div class="chat-card" style="margin-top: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 14px; color: #fffbfb;">Chat with the seller</h3>
+
+        {% if request.args.get('message_sent') == '1' %}
+        <div style="background: #dcfce7; color: #166534; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 15px;">
+            <i class="fa-solid fa-check"></i> Message sent! The seller will reply shortly.
+        </div>
+        {% endif %}
+
+        <form action="{{ url_for('send_message', product_id=product[0]) }}" method="POST">
+            <div class="quick-replies" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                <!-- These buttons fill the input box when clicked using a tiny JS script -->
+                <button type="button" onclick="document.getElementById('chatInput').value='Make an offer'" style="background-color: #ffffff; color: #0b1aff; border: 1px solid #0b1aff; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;">Make an offer</button>
+                
+                <button type="button" onclick="document.getElementById('chatInput').value='Is this available?'" style="background-color: #ffffff; color: #0b1aff; border: 1px solid #0b1aff; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;">Is this available</button>
+                
+                <button type="button" onclick="document.getElementById('chatInput').value='What is the last price?'" style="background-color: #ffffff; color: #0b1aff; border: 1px solid #0b1aff; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;">Last price</button>
+            </div>
+
+            <input type="text" name="message" id="chatInput" placeholder="Type a message" class="chat-input" required style="width: 94%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none;">
+
+            <button type="submit" class="start-chat-btn" style="width: 100%; background-color: #af2016; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer;">
+                <i class="fa-solid fa-paper-plane"></i> Start chat
+            </button>
+        </form>
+    </div>
+
+   <!-- =========================================
+     TOAST NOTIFICATION (Cart + Wishlist)
+     ========================================= -->
+{% if request.args.get('added') == '1' %}
+<div class="toast-notification" id="toast">
+    <div class="toast-icon">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="toast-body">
+        <strong>Added to cart!</strong>
+        <span>{{ session.get('last_added_product', 'Product') }}</span>
+        <a href="{{ url_for('cart') }}" class="toast-link">View Cart →</a>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+{% endif %}
+
+{% if request.args.get('wishlist') == 'added' %}
+<div class="toast-notification" id="toast">
+    <div class="toast-icon">
+        <i class="fa-solid fa-heart"></i>
+    </div>
+    <div class="toast-body">
+        <strong>Added to wishlist!</strong>
+        <span>{{ session.get('wishlist_toast_name', 'Product') }}</span>
+        <a href="{{ url_for('wishlist') }}" class="toast-link">View Wishlist →</a>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+{% endif %}
+
+{% if request.args.get('wishlist') == 'removed' %}
+<div class="toast-notification" id="toast">
+    <div class="toast-icon toast-icon-remove">
+        <i class="fa-solid fa-heart-crack"></i>
+    </div>
+    <div class="toast-body">
+        <strong>Removed from wishlist</strong>
+        <span>{{ session.get('wishlist_toast_name', 'Product') }}</span>
+    </div>
+    <button class="toast-close" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+{% endif %}
+
+<!-- BOTTOM MENU -->
+    <div class="bottom-menu" id="bottomMenu" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #660c0c; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        
+        <a href="{{ url_for('home') }}" style="text-align: center; text-decoration: none; color: #eee8e8; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-house" style="font-size: 20px;"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="javascript:void(0);" onclick="alert('Vouchers are not available yet. Check back soon!');">
+    <i class="fa-solid fa-ticket" style="font-size: 20px;" ></i>
+    <span>Voucher</span>
+</a>
+        <a href="{{ url_for('contact') }}" style="text-align: center; text-decoration: none; color: #f0ebeb; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-headset" style="font-size: 20px;"></i>
+            <span>Support</span>
+        </a>
+
+        <a href="{{ url_for('cart') }}" style="text-align: center; text-decoration: none; color: #ece6e6; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
+            <span>Cart</span>
+        </a>
+
+        <a href="{{ url_for('wishlist') }}" style="text-align: center; text-decoration: none; color: #eee8e8; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-regular fa-heart" style="font-size: 20px;"></i>
+            <span>Wishlist</span>
+        </a>
+
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast');
+
+        if (toast) {
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3500); // 3.5s so the user can click the link
+        }
+    });
+</script>
+
+</body>
+</html>

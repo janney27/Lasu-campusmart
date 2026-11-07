@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support — LASU CampusMart</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='contact.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="contact-page">
+
+    <div class="contact-topbar">
+        <a href="{{ url_for('home') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>Contact Support</h2>
+        <div style="width: 24px;"></div>
+    </div>
+
+
+    
+    <div class="contact-hero">
+        <div class="hero-icon">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+        <h1>How can we help you?</h1>
+        <p>Our team is here to assist with orders, products, and anything else.</p>
+    </div>
+
+
+    
+    <div class="contact-channels">
+
+        <a href="tel:+2348000000000" class="contact-card">
+            <div class="contact-icon phone-icon">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+            <div class="contact-info">
+                <h3>Call Us</h3>
+                <p>+234 800 000 0000</p>
+                <span>Mon-Fri, 8am - 6pm</span>
+            </div>
+            <i class="fa-solid fa-chevron-right contact-arrow"></i>
+        </a>
+
+        <a href="mailto:support@lasucampusmart.ng" class="contact-card">
+            <div class="contact-icon email-icon">
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="contact-info">
+                <h3>Email Us</h3>
+                <p>support@lasucampusmart.ng</p>
+                <span>We reply within 24 hours</span>
+            </div>
+            <i class="fa-solid fa-chevron-right contact-arrow"></i>
+        </a>
+
+        <a href="https://wa.me/2348000000000" target="_blank" class="contact-card">
+            <div class="contact-icon whatsapp-icon">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            <div class="contact-info">
+                <h3>WhatsApp</h3>
+                <p>Chat with us instantly</p>
+                <span>Fastest response</span>
+            </div>
+            <i class="fa-solid fa-chevron-right contact-arrow"></i>
+        </a>
+
+        <a href="#" class="contact-card">
+            <div class="contact-icon location-icon">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div class="contact-info">
+                <h3>Visit Us</h3>
+                <p>LASU ICT Centre, Ojo Campus</p>
+                <span>Monday – Saturday</span>
+            </div>
+            <i class="fa-solid fa-chevron-right contact-arrow"></i>
+        </a>
+
+    </div>
+
+
+    
+    <div class="contact-faq">
+
+        <h2>Frequently Asked Questions</h2>
+
+        <details>
+            <summary>How long does delivery take?</summary>
+            <p>Pickup orders are ready in 1–2 hours. Campus delivery takes 24–48 hours.</p>
+        </details>
+
+        <details>
+            <summary>Can I return a product?</summary>
+            <p>Yes — unused items can be returned within 7 days of purchase. Contact support to start a return.</p>
+        </details>
+
+        <details>
+            <summary>How do I track my order?</summary>
+            <p>Visit the Cart page and click on any order to see its current status.</p>
+        </details>
+
+        <details>
+            <summary>Do you deliver outside LASU campus?</summary>
+            <p>Delivery is currently limited to LASU Ojo campus and surrounding areas.</p>
+        </details>
+
+    </div>
+
+
+    
+    <div class="contact-footer">
+        <a href="{{ url_for('home') }}" class="back-home-btn">
+            <i class="fa-solid fa-house"></i> Back to Home
+        </a>
+    </div>
+
+</body>
+</html>

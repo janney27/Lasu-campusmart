@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — LASU CampusMart</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body class="admin-login-page">
+
+    <div class="admin-login-box">
+
+        <div class="admin-logo">
+            <span>LASU</span>
+            <h1>CampusMart</h1>
+            <p>Administration Portal</p>
+        </div>
+
+        {% if error %}
+            <div class="admin-error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+
+            <label for="password">Admin Password</label>
+            <input type="password"
+                   id="password"
+                   name="password"
+                   placeholder="Enter your password"
+                   required
+                   autofocus>
+
+            <button type="submit">
+                🔓 Sign In
+            </button>
+
+        </form>
+
+        <a href="{{ url_for('home') }}" class="back-link">
+            ← Back to CampusMart
+        </a>
+
+    </div>
+
+</body>
+</html>

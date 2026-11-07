@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-box">
+
+        <div class="auth-logo">
+            <span>LASU</span>
+            <h1>CampusMart</h1>
+        </div>
+
+        <h2>Welcome Back</h2>
+        <p>Login to your CampusMart account</p>
+
+        {% if registered %}
+        <div class="auth-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Account created successfully! Please log in.</span>
+        </div>
+     {% endif %}
+
+        {% if request.args.get('reset') == '1' %}
+    <div class="auth-success">
+    <i class="fa-solid fa-circle-check"></i>
+    <span>Password reset successfully! Please log in with your new password.</span>
+   </div>
+   {% endif %}
+
+        {% if errors %}
+        <div class="auth-errors">
+            {% for error in errors %}
+            <div class="auth-error-item">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       placeholder="you@example.com"
+                       value="{{ email if email else '' }}"
+                       required
+                       autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <div class="password-wrap">
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Enter your password"
+                           required>
+                    <button type="button" class="toggle-eye" data-target="password">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <a href="{{ url_for('forgot_password') }}" style="display: block; text-align: right; font-size: 12px; color: #f5f5f8; margin-top: 8px; text-decoration: none;
+                 font-weight: 600;">Forgot Password?</a>
+
+            </div>
+
+            <button type="submit" class="auth-submit">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Login
+            </button>
+
+        </form>
+
+        <p class="auth-switch">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Register</a>
+        </p>
+
+        <a href="{{ url_for('home') }}" class="auth-back-link">
+            ← Back to Home
+        </a>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Show/hide password
+            const eyeBtn = document.querySelector('.toggle-eye');
+            if (eyeBtn) {
+                eyeBtn.addEventListener('click', function () {
+                    const input = document.getElementById(this.dataset.target);
+                    const icon = this.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            }
+
+            // Shake on error
+            const errorBox = document.querySelector('.auth-errors');
+            if (errorBox) {
+                errorBox.classList.add('shake');
+                setTimeout(() => errorBox.classList.remove('shake'), 600);
+            }
+
+        });
+    </script>
+
+</body>
+</html>

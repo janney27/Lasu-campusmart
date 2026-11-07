@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Portal — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="auth-page" style="background: black; ">
+
+    <div class="auth-box" style="text-align: center; background-color: #151949;">
+        
+        <i class="fa-solid fa-store" style="font-size: 45px; color: #0b1aff; margin-bottom: 15px;"></i>
+        <h2 style="color: #f7f7f7; margin-bottom: 5px;">Vendor Portal</h2>
+        <p style="font-size: 13px; color: #e2e1e1; margin-bottom: 20px;">Log in to manage your store or check your application status.</p>
+
+        <!-- ERROR MESSAGE (If not registered) -->
+        {% if error %}
+        <div style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold; margin-bottom: 15px;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- PENDING MESSAGE (If waiting for admin approval) -->
+        {% if pending_message %}
+        <div style="background: #fef3c7; color: #92400e; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold; margin-bottom: 15px;">
+            <i class="fa-solid fa-clock"></i> {{ pending_message }}
+        </div>
+        {% endif %}
+
+        
+        <!-- LOGIN FORM -->
+        <form action="{{ url_for('vendor_login_action') }}" method="POST" style="text-align: left;">
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="email" style="font-size: 13px; color: #ffffff; font-weight: bold; margin-bottom: 8px; display: block;">Registered Vendor Email</label>
+                
+                
+                <input type="email" id="email" name="email" placeholder="Enter your vendor email" required 
+                       style="width: 100%; padding: 14px 16px; border: none; border-radius: 10px; font-size: 15px; background-color: #ffffff; color: #333; box-sizing: border-box; outline: none;">
+            </div>
+
+            
+            <button type="submit" style="width: 100%; padding: 15px; border-radius: 10px; background-color: #6e1515; color: #ffffff; font-weight: 700; font-size: 15px; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Check Status / Login
+            </button>
+            
+        </form>
+        <!-- REGISTER SECTION -->
+        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="font-size: 14px; color: #ddd; margin-bottom: 15px;">Don't have a vendor account yet?</p>
+            <a href="{{ url_for('vendor_signup') }}" style="display: block; width: 100%; padding: 15px; border-radius: 10px; text-decoration: none; background-color: #530d0d; color: #ffffff; font-weight: 700; font-size: 15px; text-align: center; box-sizing: border-box;">
+                <i class="fa-solid fa-user-plus" style="margin-right: 8px;"></i> Register as a Vendor
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

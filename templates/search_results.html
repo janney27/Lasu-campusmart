@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body style="background-color: #f5f5f7; padding-bottom: 50px;">
+
+    <!-- SEARCH BAR (Fixed at top) -->
+    <div style="padding: 15px; background: #050a5a; position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: 10px;">
+        <!-- Back button -->
+        <a href="{{ url_for('home') }}" style="color: #fff; font-size: 20px; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        
+        <!-- Search Form -->
+        <form action="{{ url_for('search') }}" method="GET" style="flex: 1; display: flex; gap: 10px;">
+            <input type="text" name="query" value="{{ query }}" placeholder="Search products, categories..." autofocus
+                   style="width: 100%; padding: 12px 20px; border-radius: 25px; border: none; outline: none; font-size: 14px;">
+            <button type="submit" style="background: #f0e9e9; color: #0d1364; border: none; padding: 0 20px; border-radius: 25px; font-weight: bold; cursor: pointer;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- RESULTS HEADER -->
+    <div style="padding: 20px 15px 10px; background: #4e0808; border-bottom: 1px solid #eeeeee44;">
+        <h2 style="font-size: 16px; color: #fffcfc;">
+            {% if query %}
+                Search results for "<span style="color: #0b1aff;">{{ query }}</span>"
+            {% else %}
+                Browse All Products
+            {% endif %}
+        </h2>
+        <p style="font-size: 13px; color: #d4d3d3; margin-top: 5px;">{{ products|length }} item(s) found</p>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="product-grid" style="padding: 15px;">
+        
+        {% for product in products %}
+        
+        {% set p_stock = product[7] if product|length > 7 and product[7] is not none else 10 %}
+
+        <div class="product-card {% if p_stock <= 0 %}out-of-stock{% endif %}" data-card data-product-id="{{ product[0] }}">
+
+            {% if session.get('user_id') %}
+            <a href="{{ url_for('wishlist_toggle', product_id=product[0]) }}"
+               class="wishlist-heart {% if product[0] in wishlist_ids %}active{% endif %}">
+                <i class="{% if product[0] in wishlist_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+            </a>
+            {% endif %}
+
+            {% if p_stock <= 0 %}
+                <span class="stock-ribbon out">Out of Stock</span>
+            {% elif p_stock <= 5 %}
+                <span class="stock-ribbon low">Only {{ p_stock }} left</span>
+            {% endif %}
+
+            <a href="{{ url_for('product_details', product_id=product[0]) }}" class="product-link">
+                <img src="{% if product[6].startswith('http') %}{{ product[6] }}{% else %}{{ url_for('uploaded_file', filename=product[6]) }}{% endif %}" alt="{{ product[1] }}">
+                <div class="product-info">
+                    <h3>{{ product[1] }}</h3>
+                    <p class="price">₦{{ "{:,.0f}".format(product[2]|float) }}</p>
+                    <p>📍 {{ product[5] }}</p>
+                    <p class="description">{{ product[4] }}</p>
+                </div>
+            </a>
+        </div>
+        
+        {% else %}
+        <!-- EMPTY STATE -->
+        <div style="text-align: center; padding: 60px 20px; width: 100%; background: #fff; border-radius: 12px; margin: 0 auto; max-width: 400px;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+            <h2 style="color: #333; font-size: 18px;">No results found</h2>
+            <p style="color: #888; font-size: 13px; margin-top: 10px;">
+                We couldn't find anything matching "{{ query }}".<br>Try checking your spelling or using more general terms.
+            </p>
+            <a href="{{ url_for('search') }}" style="display: inline-block; margin-top: 20px; background: #0b1aff; color: #fff; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 14px;">Clear Search</a>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</body>
+</html>

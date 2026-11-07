@@ -1,0 +1,314 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    font-family:'Times New Roman', Times, serif;
+    background: linear-gradient(rgb(0, 0, 0), rgb(97, 97, 97));
+
+    color: #ffffffe8;
+}
+
+
+
+.upload-container {
+    width: 90%;
+    max-width: 650px;
+    margin: 50px auto;
+    padding: 40px;
+    border-radius: 25px;
+    background-image:
+        linear-gradient(
+            rgba(255, 255, 255, 0),
+            rgba(255, 255, 255, 0)
+        ),
+        url("img/sell-background.jpg");
+
+    background-size: cover;
+    background-position: center;
+    border: #03129e 2px solid;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+
+.upload-container h1 {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #cfc9c9;
+    font-size: 17px;
+    margin-bottom: 35px;
+}
+
+
+#productForm {
+    width: 100%;
+}
+
+
+.form-group {
+    margin-bottom: 23px;
+}
+
+.form-group > label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 15px 16px;
+    border: 1px solid #d1d1d1;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    transition: 0.25s;
+}
+
+
+
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.07);
+}
+
+
+.form-group textarea {
+
+    resize: vertical;
+    min-height: 130px;
+}
+
+
+
+.image-upload {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+#productImage {
+    display: none;
+}
+
+
+.upload-box {
+    width: 190px;
+    height: 160px;
+    border: 2px dashed #aaa;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+
+/* Plus sign */
+
+.upload-box span {
+
+    font-size: 48px;
+
+    font-weight: 300;
+
+    line-height: 1;
+
+    color: #8d8b8b;
+}
+
+
+/* Add Image text */
+
+.upload-box p {
+
+    margin-top: 10px;
+
+    font-size: 16px;
+
+    color: #8a8989;
+}
+
+
+/* Hover */
+
+.upload-box:hover {
+
+    border-color: #111;
+
+    background: rgba(255, 255, 255, 1);
+
+    transform: translateY(-2px);
+}
+
+
+/* ================================
+   IMAGE PREVIEW
+================================ */
+
+.image-preview {
+
+    display: none;
+
+    width: 190px;
+
+    max-height: 200px;
+
+    object-fit: cover;
+
+    margin: 15px auto 0;
+
+    border-radius: 15px;
+
+    border: 1px solid #ddd;
+}
+
+
+/* ================================
+   POST BUTTON
+================================ */
+
+.post-btn {
+
+    width: 100%;
+
+    padding: 16px;
+
+    margin-top: 10px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #2b0303;
+
+    color: white;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+
+.post-btn:hover {
+
+    background: #333;
+
+    transform: translateY(-2px);
+
+}
+
+
+.post-btn:active {
+
+    transform: translateY(0);
+
+}
+
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 0;
+    }
+
+    .upload-container {
+
+        width: 94%;
+
+        margin: 20px auto;
+
+        padding: 25px 18px;
+
+        border-radius: 20px;
+    }
+
+
+    .upload-container h1 {
+
+        font-size: 28px;
+    }
+
+
+    .subtitle {
+
+        font-size: 15px;
+
+        line-height: 1.5;
+
+        margin-bottom: 25px;
+    }
+
+
+    .form-group {
+
+        margin-bottom: 20px;
+    }
+
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+
+        padding: 14px;
+
+        font-size: 15px;
+    }
+
+
+    .upload-box {
+
+        width: 160px;
+
+        height: 140px;
+    }
+
+
+    .upload-box span {
+
+        font-size: 42px;
+    }
+
+
+    .post-btn {
+
+        padding: 15px;
+
+        font-size: 16px;
+    }
+}

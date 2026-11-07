@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders — LASU CampusMart Admin</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-lasu">LASU</span>
+            <h1>CampusMart</h1>
+            <p>Admin Panel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('admin_products') }}">
+                <i class="fa-solid fa-box"></i>
+                <span>Products</span>
+            </a>
+
+            <a href="{{ url_for('sell') }}">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Add Product</span>
+            </a>
+
+            <a href="{{ url_for('admin_orders') }}" class="active">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Orders</span>
+            </a>
+
+            <a href="{{ url_for('admin_vendors') }}">
+                <i class="fa-solid fa-store"></i>
+                <span>Vendors</span>
+            </a>
+
+            <a href="{{ url_for('admin_inventory') }}">
+                <i class="fa-solid fa-warehouse"></i>
+                <span>Inventory</span>
+            </a>
+
+            <a href="{{ url_for('admin_reports') }}">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Reports</span>
+            </a>
+
+        </nav>
+
+        <a href="{{ url_for('admin_logout') }}" class="sidebar-logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <h2>Order Management</h2>
+            <div class="topbar-right">
+                <span class="welcome-text">
+                    Welcome back, <strong>Admin</strong>
+                </span>
+                <div class="admin-avatar">A</div>
+            </div>
+        </header>
+
+
+        <section class="admin-content">
+
+            <!-- Filter tabs -->
+            <div class="order-filters">
+
+                <a href="{{ url_for('admin_orders') }}"
+                   class="filter-tab {% if not status_filter %}active{% endif %}">
+                    All ({{ orders|length }})
+                </a>
+
+                <a href="{{ url_for('admin_orders', status='Pending') }}"
+                   class="filter-tab {% if status_filter == 'Pending' %}active{% endif %}">
+                    ⏳ Pending ({{ status_counts.get('Pending', 0) }})
+                </a>
+
+                <a href="{{ url_for('admin_orders', status='Confirmed') }}"
+                   class="filter-tab {% if status_filter == 'Confirmed' %}active{% endif %}">
+                    ✅ Confirmed ({{ status_counts.get('Confirmed', 0) }})
+                </a>
+
+                <a href="{{ url_for('admin_orders', status='Shipped') }}"
+                   class="filter-tab {% if status_filter == 'Shipped' %}active{% endif %}">
+                    🚚 Shipped ({{ status_counts.get('Shipped', 0) }})
+                </a>
+
+                <a href="{{ url_for('admin_orders', status='Delivered') }}"
+                   class="filter-tab {% if status_filter == 'Delivered' %}active{% endif %}">
+                    📦 Delivered ({{ status_counts.get('Delivered', 0) }})
+                </a>
+
+                <a href="{{ url_for('admin_orders', status='Cancelled') }}"
+                   class="filter-tab {% if status_filter == 'Cancelled' %}active{% endif %}">
+                    ❌ Cancelled ({{ status_counts.get('Cancelled', 0) }})
+                </a>
+
+            </div>
+
+
+            <!-- Search -->
+            <div class="admin-toolbar">
+
+                <form method="GET"
+                      action="{{ url_for('admin_orders') }}"
+                      class="admin-search-form">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    {% if status_filter %}
+                    <input type="hidden" name="status" value="{{ status_filter }}">
+                    {% endif %}
+
+                    <input type="text"
+                           name="search"
+                           placeholder="Search by name, phone, or order ID..."
+                           value="{{ search }}">
+
+                    {% if search %}
+                    <a href="{{ url_for('admin_orders', status=status_filter) }}"
+                       class="clear-search"
+                       title="Clear">×</a>
+                    {% endif %}
+
+                    <button type="submit">Search</button>
+
+                </form>
+
+                <div class="product-count">
+                    Showing <strong>{{ orders|length }}</strong> order(s)
+                </div>
+
+            </div>
+
+
+            <!-- Orders table -->
+            <div class="content-card">
+
+                {% if orders %}
+
+                <div class="table-scroll">
+
+                    <table class="admin-table admin-table-orders">
+
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Contact</th>
+                                <th>Delivery</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Update</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for o in orders %}
+                            <tr>
+
+                                <td>
+                                    <span class="order-id">#{{ o[0] }}</span>
+                                </td>
+
+                                <td>
+                                    <div class="customer-cell">
+                                        <strong>{{ o[1] }}</strong>
+                                        {% if o[7] %}
+                                        <span class="order-date">
+                                            {{ o[7][:16] }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="customer-cell">
+                                        <span>{{ o[2] }}</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="customer-cell">
+                                        <span>{{ o[3][:30] }}{% if o[3]|length > 30 %}...{% endif %}</span>
+                                        <span class="order-date">
+                                            <i class="fa-solid fa-location-dot"></i> {{ o[4] }}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td class="text-right">
+                                    <strong>₦{{ "{:,.0f}".format(o[5]|float) }}</strong>
+                                </td>
+
+                                <td>
+                                    {% set status = o[6] or 'Pending' %}
+                                    <span class="status-badge status-{{ status|lower }}">
+                                        {{ status }}
+                                    </span>
+                                </td>
+
+                                <td style="text-align: right;">
+
+                                    <form method="POST"
+                                          action="{{ url_for('admin_update_order_status', order_id=o[0]) }}"
+                                          class="status-form">
+
+                                        <select name="status" onchange="this.form.submit()" class="status-select">
+    <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
+    <option value="Pending Vendor" {% if status == 'Pending Vendor' %}selected{% endif %}>Pending Vendor</option>
+    <option value="Vendor Confirmed" {% if status == 'Vendor Confirmed' %}selected{% endif %}>Vendor Confirmed</option>
+    <option value="Ready for Delivery" {% if status == 'Ready for Delivery' %}selected{% endif %}>Ready for Delivery</option> <!-- NEW -->
+    <option value="Delivered" {% if status == 'Delivered' %}selected{% endif %}>Delivered</option>
+    <option value="Cancelled" {% if status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+</select>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="empty-state">
+                    <i class="fa-solid fa-receipt"></i>
+                    <h3>No orders yet</h3>
+                    {% if search or status_filter %}
+                    <p>No orders match your filters.</p>
+                    <a href="{{ url_for('admin_orders') }}" class="btn-primary">
+                        Clear filters
+                    </a>
+                    {% else %}
+                    <p>Orders will appear here once customers checkout.</p>
+                    {% endif %}
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

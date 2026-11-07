@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cart - AFTF</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='home.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+          integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+</head>
+
+<body class="cart-page">
+
+    <!-- =========================================
+         PAGE TITLE
+         ========================================= -->
+    <h1 class="cart-title">Cart</h1>
+
+
+    <!-- =========================================
+         CART SUMMARY
+         ========================================= -->
+    <div class="cart-summary">
+        <span class="summary-label">CART SUMMARY</span>
+        <div class="subtotal-row">
+            <span>Subtotal</span>
+            <span class="subtotal-value">
+                ₦{{ "{:,.0f}".format(total) }}
+            </span>
+        </div>
+    </div>
+
+
+    <!-- =========================================
+         CART ITEMS
+         ========================================= -->
+    <div class="cart-items-header">
+        CART ({{ cart_count }})
+    </div>
+
+    <div class="cart-items">
+
+        {% if products %}
+
+            {% for item in products %}
+            <div class="cart-item">
+
+                <!-- Image -->
+                <div class="cart-item-image">
+                    <img src="{% if item[0][6].startswith('http') %}{{ item[0][6] }}{% else %}{{ url_for('uploaded_file', filename=item[0][6]) }}{% endif %}"
+                         alt="{{ item[0][1] }}">
+                </div>
+
+                <!-- Info -->
+                <div class="cart-item-info">
+
+                    <h3 class="cart-item-name">{{ item[0][1] }}</h3>
+
+                    <p class="cart-item-price">
+                        ₦{{ "{:,.0f}".format(item[0][2]|float) }}
+                    </p>
+
+                    <p class="cart-item-stock">Few units left</p>
+
+                    <!-- Remove + Qty -->
+                    <div class="cart-item-actions">
+
+                        <a href="{{ url_for('remove_from_cart', product_id=item[0][0]) }}"
+                           class="remove-link">
+                            Remove
+                        </a>
+
+                        <div class="qty-controls">
+
+                            <a href="{{ url_for('decrease_cart', product_id=item[0][0]) }}"
+                               class="qty-btn">−</a>
+
+                            <span class="qty-value">{{ item[1] }}</span>
+
+                            <a href="{{ url_for('increase_cart', product_id=item[0][0]) }}"
+                               class="qty-btn qty-btn-add">+</a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            {% endfor %}
+
+        {% else %}
+
+            <div class="cart-empty">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <p>Your cart is empty.</p>
+                <a href="{{ url_for('home') }}">
+                    <button class="continue-shopping-btn">Continue Shopping</button>
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================================
+         CHECKOUT BAR
+         ========================================= -->
+    {% if products %}
+    <div class="checkout-bar">
+
+        <button class="contact-seller-btn">
+            <i class="fa-solid fa-phone"></i>
+        </button>
+
+        <a href="{{ url_for('checkout') }}" class="checkout-link">
+            <button class="checkout-btn">
+                Checkout (₦{{ "{:,.0f}".format(total) }})
+            </button>
+        </a>
+
+    </div>
+    {% endif %}
+
+
+    <!-- =========================================
+         RECENTLY VIEWED
+         ========================================= -->
+    {% if recently_viewed %}
+    <div class="recently-viewed-section">
+
+        <div class="recently-viewed-header">
+            <h3>Recently Viewed</h3>
+            <a href="{{ url_for('home') }}">SEE ALL</a>
+        </div>
+
+        <div class="recently-viewed-scroll">
+
+            {% for item in recently_viewed %}
+            <a href="{{ url_for('product_details', product_id=item[0]) }}"
+               class="recently-viewed-card">
+
+                <div class="recently-viewed-image">
+                    <img src="{% if item[6].startswith('http') %}{{ item[6] }}{% else %}{{ url_for('uploaded_file', filename=item[6]) }}{% endif %}"
+                         alt="{{ item[1] }}">
+                </div>
+
+                <p class="recently-viewed-name">{{ item[1] }}</p>
+
+                <p class="recently-viewed-price">
+                    ₦{{ "{:,.0f}".format(item[2]|float) }}
+                </p>
+
+            </a>
+            {% endfor %}
+
+        </div>
+
+    </div>
+    {% endif %}
+
+</body>
+</html>

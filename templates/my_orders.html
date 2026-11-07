@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+    <style>
+        body { background-color: #070606; font-family: Arial, sans-serif; margin: 0; padding: 0; padding-bottom: 70px; }
+        
+        .top-bar { background: #030d69; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #ddd; }
+        .top-bar a { color: #c22f2f; font-size: 20px; text-decoration: none; }
+        .search-bar { flex: 1; background: #f0eaea; border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; gap: 10px; }
+        .search-bar input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+        
+        .page-title { background: #580909; padding: 20px 15px 0 15px; font-size: 22px; font-weight: bold; color: #ece6e6; }
+        .tabs { display: flex; background: #5a0707; border-bottom: 2px solid #eee; }
+        .tab { flex: 1; text-align: center; padding: 15px 0; font-size: 14px; font-weight: bold; color: #888; cursor: pointer; position: relative; }
+        .tab.active { color: #3d65e7; }
+        .tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px; background: #0f4c9c; }
+        
+        .order-list { background: #f5f5f5; padding-top: 10px; }
+        .order-card { background: #060b50; margin-bottom: 10px; padding: 15px; }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; color: white;}
+        
+        .item-row { display: flex; gap: 15px; margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 15px; }
+        .item-row:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 10px; }
+        
+        .order-img { width: 70px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; }
+        .order-details { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .order-name { font-size: 14px; color: #ece8e8; margin-bottom: 4px; font-weight: 500; }
+        .order-number { font-size: 13px; color: #d4cfcf; }
+        
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .status-delivered { background-color: #6cbd37; color: #fff; }
+        .status-shipped { background-color: #f59e0b; color: #fff; }
+        .status-pending { background-color: #e0f2fe; color: #0284c7; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        
+        .cancel-btn { display: inline-block; background: #e0d6d6; color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 15px; border-radius: 4px; font-size: 13px; text-decoration: none; font-weight: bold; margin-top: 5px; }
+        .cancel-btn:hover { background: #e74c3c; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="{{ url_for('profile') }}"><i class="fa-solid fa-arrow-left"></i></a>
+        <form action="{{ url_for('search') }}" method="GET" class="search-bar" style="margin: 0;">
+            <i class="fa-solid fa-magnifying-glass" style="color: #888;"></i>
+            <input type="text" name="query" placeholder="Search on LASU CampusMart">
+        </form>
+        <a href="{{ url_for('cart') }}"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+
+    <div class="page-title">My Orders</div>
+    <div class="tabs">
+        <div class="tab active">Ongoing/Delivered</div>
+        <div class="tab">Canceled/Returned</div>
+    </div>
+
+    <div class="order-list">
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                
+                <div class="order-header">
+                    <div>
+                        <strong>Order #{{ order[0] }}</strong><br>
+                        <span style="font-size: 12px; color: #888;">{{ order[3][:10] if order[3] else 'Today' }}</span>
+                    </div>
+                    <div>
+                        {% if order[2] == 'Delivered' %}
+                            <span class="status-badge status-delivered">Delivered</span>
+                        {% elif order[2] == 'Shipped' or order[2] == 'Vendor Confirmed' %}
+                            <span class="status-badge status-shipped">Shipped</span>
+                        {% elif order[2] == 'Cancelled' %}
+                            <span class="status-badge status-cancelled">Cancelled</span>
+                        {% else %}
+                            <span class="status-badge status-pending">{{ order[2] or 'Pending' }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 🚨 FIXED: SPLITS BY BULLET • INSTEAD OF COMMA -->
+                {% if order[5] %}
+                    {% for item in order[5].split(', ') %}
+                        {% set parts = item.split('•') %}
+                        <div class="item-row">
+                            <img src="{% if parts[1].startswith('http') %}{{ parts[1] }}{% else %}{{ url_for('uploaded_file', filename=parts[1]) }}{% endif %}" class="order-img" alt="Product">
+                            <div class="order-details">
+                                <div class="order-name">{{ parts[0] }}</div>
+                                <div class="order-number">Qty: {{ parts[2] }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #888; font-size: 13px; padding: 10px 0;">Items details not available (Old Order).</p>
+                {% endif %}
+
+                <!-- CANCEL BUTTON -->
+                {% if order[2] in ['Pending', 'Paid', 'Pending Vendor'] %}
+                    <a href="{{ url_for('cancel_order', order_id=order[0]) }}" class="cancel-btn" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel Order</a>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 60px 20px; background: #fff; margin: 15px;">
+                <i class="fa-solid fa-box-open" style="font-size: 50px; color: #ccc; margin-bottom: 15px;"></i>
+                <h3>No orders yet</h3>
+                <p>When you place an order, it will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="bottom-menu" id="bottomMenu" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #3d0202; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        
+        <a href="{{ url_for('home') }}" style="text-align: center; text-decoration: none; color: #f1eeee; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-house" style="font-size: 20px;"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="javascript:void(0);" onclick="alert('Vouchers are not available yet. Check back soon!');">
+    <i class="fa-solid fa-ticket" style="font-size: 20px;"></i>
+    <span>Voucher</span>
+</a>
+
+        <a href="{{ url_for('contact') }}" style="text-align: center; text-decoration: none; color: #d3cfcf; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-headset" style="font-size: 20px;"></i>
+            <span>Support</span>
+        </a>
+
+        <a href="{{ url_for('cart') }}" style="text-align: center; text-decoration: none; color: #dbd7d7; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
+            <span>Cart</span>
+        </a>
+
+        <a href="{{ url_for('wishlist') }}" style="text-align: center; text-decoration: none; color: #c7c3c3; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-regular fa-heart" style="font-size: 20px;"></i>
+            <span>Wishlist</span>
+        </a>
+
+    </div>
+
+</body>
+</html>

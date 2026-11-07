@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="auth-page">
+
+    <div class="auth-box">
+
+        <div class="auth-logo">
+            <span>LASU</span>
+            <h1>CampusMart</h1>
+        </div>
+
+        <h2>Create Account</h2>
+        <p>Sign up as a student, lecturer, or staff</p>
+
+        {% if errors %}
+        <div class="auth-errors">
+            {% for error in errors %}
+            <div class="auth-error-item">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+
+            <div class="form-group">
+                <label for="full_name">Full Name *</label>
+                <input type="text"
+                       id="full_name"
+                       name="full_name"
+                       placeholder="e.g. Adebayo Johnson"
+                       value="{{ form_data.full_name if form_data else '' }}"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       placeholder="you@example.com"
+                       value="{{ form_data.email if form_data else '' }}"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="matric_or_staff_id">Matric / Staff ID *</label>
+                <input type="text"
+                       id="matric_or_staff_id"
+                       name="matric_or_staff_id"
+                       placeholder="e.g. 210591021 or LASU/STF/045"
+                       value="{{ form_data.matric_or_staff_id if form_data else '' }}"
+                       required>
+            </div>
+            <div class="form-group">
+    <label for="phone">Phone Number *</label>
+    <input type="tel"
+           id="phone"
+           name="phone"
+           placeholder="e.g. 08012345678"
+           value="{{ form_data.phone if form_data else '' }}"
+           required>
+</div>
+            <div class="form-group">
+                <label for="role">I am a... *</label>
+                <select id="role" name="role" required>
+                    <option value="" disabled {% if not form_data or not form_data.role %}selected{% endif %}>
+                        Select your role
+                    </option>
+                    <option value="student" {% if form_data and form_data.role == 'student' %}selected{% endif %}>
+                        🎓 Student
+                    </option>
+                    <option value="lecturer" {% if form_data and form_data.role == 'lecturer' %}selected{% endif %}>
+                        📚 Lecturer
+                    </option>
+                    <option value="staff" {% if form_data and form_data.role == 'staff' %}selected{% endif %}>
+                        🏢 Staff
+                    </option>
+                </select>
+            </div>
+
+           <div class="form-group">
+    <label for="password">Password *</label>
+    <div class="password-wrap">
+        <input type="password"
+               id="password"
+               name="password"
+               placeholder="At least 6 characters"
+               minlength="6"
+               required>
+        <button type="button" class="toggle-eye" data-target="password">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+    </div>
+
+    <!-- Password strength meter -->
+    <div class="strength-meter" id="strengthMeter">
+        <div class="strength-bar"></div>
+        <div class="strength-bar"></div>
+        <div class="strength-bar"></div>
+    </div>
+    <span class="strength-label" id="strengthLabel"></span>
+</div>
+
+<div class="form-group">
+    <label for="confirm_password">Confirm Password *</label>
+    <div class="password-wrap">
+        <input type="password"
+               id="confirm_password"
+               name="confirm_password"
+               placeholder="Re-enter your password"
+               minlength="6"
+               required>
+        <button type="button" class="toggle-eye" data-target="confirm_password">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+    </div>
+
+    <!-- Live match check -->
+    <span class="match-indicator" id="matchIndicator"></span>
+</div>
+            <button type="submit" class="auth-submit">
+                <i class="fa-solid fa-user-plus"></i>
+                Create Account
+            </button>
+
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login</a>
+        </p>
+
+        <a href="{{ url_for('home') }}" class="auth-back-link">
+            ← Back to Home
+        </a>
+
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // =========================================
+        // SHOW / HIDE PASSWORD TOGGLE
+        // =========================================
+        const eyeButtons = document.querySelectorAll('.toggle-eye');
+
+        eyeButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+
+
+        // =========================================
+        // PASSWORD STRENGTH METER
+        // =========================================
+        const passwordInput = document.getElementById('password');
+        const strengthBars = document.querySelectorAll('.strength-bar');
+        const strengthLabel = document.getElementById('strengthLabel');
+
+        function checkStrength(password) {
+            let score = 0;
+
+            if (password.length >= 6) score++;
+            if (password.length >= 10) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            // Clamp to 0-3
+            if (score <= 1) return 1; // weak
+            if (score <= 3) return 2; // medium
+            return 3;                 // strong
+        }
+
+        passwordInput.addEventListener('input', function () {
+            const val = this.value;
+
+            // Reset
+            strengthBars.forEach(b => b.classList.remove('weak', 'medium', 'strong'));
+            strengthLabel.textContent = '';
+            strengthLabel.className = 'strength-label';
+
+            if (!val) return;
+
+            const level = checkStrength(val);
+
+            if (level === 1) {
+                strengthBars[0].classList.add('weak');
+                strengthLabel.textContent = 'Weak password';
+                strengthLabel.classList.add('label-weak');
+            } else if (level === 2) {
+                strengthBars[0].classList.add('medium');
+                strengthBars[1].classList.add('medium');
+                strengthLabel.textContent = 'Medium strength';
+                strengthLabel.classList.add('label-medium');
+            } else {
+                strengthBars.forEach(b => b.classList.add('strong'));
+                strengthLabel.textContent = 'Strong password 💪';
+                strengthLabel.classList.add('label-strong');
+            }
+        });
+
+
+        // =========================================
+        // LIVE PASSWORD MATCH CHECK
+        // =========================================
+        const confirmInput = document.getElementById('confirm_password');
+        const matchIndicator = document.getElementById('matchIndicator');
+
+        function checkMatch() {
+            const p1 = passwordInput.value;
+            const p2 = confirmInput.value;
+
+            matchIndicator.textContent = '';
+            matchIndicator.className = 'match-indicator';
+
+            if (!p2) return;
+
+            if (p1 === p2) {
+                matchIndicator.textContent = '✓ Passwords match';
+                matchIndicator.classList.add('match-ok');
+                confirmInput.style.borderColor = '#16a34a';
+            } else {
+                matchIndicator.textContent = '✗ Passwords do not match';
+                matchIndicator.classList.add('match-error');
+                confirmInput.style.borderColor = '#dc2626';
+            }
+        }
+
+        passwordInput.addEventListener('input', checkMatch);
+        confirmInput.addEventListener('input', checkMatch);
+
+
+        // =========================================
+        // SHAKE ANIMATION ON ERROR
+        // =========================================
+        const errorBox = document.querySelector('.auth-errors');
+        if (errorBox) {
+            errorBox.classList.add('shake');
+            setTimeout(() => errorBox.classList.remove('shake'), 600);
+        }
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory — LASU CampusMart Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="admin-body">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-lasu">LASU</span>
+            <h1>CampusMart</h1>
+            <p>Admin Panel</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin_dashboard') }}">
+                <i class="fa-solid fa-chart-line"></i><span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin_products') }}">
+                <i class="fa-solid fa-box"></i><span>Products</span>
+            </a>
+            <a href="{{ url_for('sell') }}">
+                <i class="fa-solid fa-circle-plus"></i><span>Add Product</span>
+            </a>
+            <a href="{{ url_for('admin_orders') }}">
+                <i class="fa-solid fa-receipt"></i><span>Orders</span>
+            </a>
+            <a href="{{ url_for('admin_vendors') }}">
+                <i class="fa-solid fa-store"></i><span>Vendors</span>
+            </a>
+            <a href="{{ url_for('admin_inventory') }}" class="active">
+                <i class="fa-solid fa-warehouse"></i><span>Inventory</span>
+            </a>
+            <a href="{{ url_for('admin_reports') }}">
+                <i class="fa-solid fa-chart-pie"></i><span>Reports</span>
+            </a>
+        </nav>
+        <a href="{{ url_for('admin_logout') }}" class="sidebar-logout">
+            <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <h2>Inventory</h2>
+            <div class="topbar-right">
+                <span class="welcome-text">Welcome back, <strong>Admin</strong></span>
+                <div class="admin-avatar">A</div>
+            </div>
+        </header>
+
+        <section class="admin-content">
+
+            <!-- Summary cards -->
+            <div class="stats-grid">
+
+                <div class="stat-card stat-products">
+                    <div class="stat-icon"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Products</p>
+                        <h3 class="stat-value">{{ total }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-revenue">
+                    <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">In Stock</p>
+                        <h3 class="stat-value">{{ healthy }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-users">
+                    <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Low Stock</p>
+                        <h3 class="stat-value">{{ low_count }}</h3>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-orders">
+                    <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+                    <div class="stat-info">
+                        <p class="stat-label">Out of Stock</p>
+                        <h3 class="stat-value">{{ out_count }}</h3>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- OUT OF STOCK -->
+            {% if out_of_stock %}
+            <div class="content-card inventory-card">
+                <div class="content-card-header">
+                    <h3>🔴 Out of Stock ({{ out_of_stock|length }})</h3>
+                    <a href="{{ url_for('admin_products', stock='out') }}">Manage →</a>
+                </div>
+                <div class="table-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in out_of_stock %}
+                            <tr>
+                                <td>
+                                    <img src="{% if p[5].startswith('http') %}{{ p[5] }}{% else %}{{ url_for('uploaded_file', filename=p[5]) }}{% endif %}"
+                                         class="product-thumb" alt="{{ p[1] }}">
+                                </td>
+                                <td><strong>{{ p[1] }}</strong></td>
+                                <td><span class="category-tag">{{ p[3] }}</span></td>
+                                <td class="text-right">₦{{ "{:,.0f}".format(p[2]|float) }}</td>
+                                <td>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_update_stock', product_id=p[0]) }}"
+                                          class="quick-restock-form">
+                                        <input type="number" name="stock" value="10" min="0" class="stock-input">
+                                        <button type="submit" class="btn-primary">Restock</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+
+            <!-- LOW STOCK -->
+            {% if low_stock %}
+            <div class="content-card inventory-card">
+                <div class="content-card-header">
+                    <h3>🟡 Low Stock ({{ low_stock|length }})</h3>
+                    <a href="{{ url_for('admin_products', stock='low') }}">Manage →</a>
+                </div>
+                <div class="table-scroll">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th><th>Product</th><th>Category</th><th>Stock</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in low_stock %}
+                            <tr>
+                                <td>
+                                    <img src="{% if p[5].startswith('http') %}{{ p[5] }}{% else %}{{ url_for('uploaded_file', filename=p[5]) }}{% endif %}"
+                                         class="product-thumb" alt="{{ p[1] }}">
+                                </td>
+                                <td><strong>{{ p[1] }}</strong></td>
+                                <td><span class="category-tag">{{ p[3] }}</span></td>
+                                <td>
+                                    <span class="stock-badge stock-low">Low: {{ p[4] }}</span>
+                                </td>
+                                <td>
+                                    <form method="POST"
+                                          action="{{ url_for('admin_update_stock', product_id=p[0]) }}"
+                                          class="quick-restock-form">
+                                        <input type="number" name="stock" value="{{ p[4] + 10 }}" min="0" class="stock-input">
+                                        <button type="submit" class="btn-primary">Restock</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+
+            <!-- ALL GOOD -->
+            {% if not out_of_stock and not low_stock %}
+            <div class="content-card">
+                <div class="empty-state">
+                    <i class="fa-solid fa-circle-check" style="color: #16a34a;"></i>
+                    <h3>All products are well-stocked</h3>
+                    <p>Nothing to worry about right now.</p>
+                </div>
+            </div>
+            {% endif %}
+
+        </section>
+    </main>
+
+</body>
+</html>

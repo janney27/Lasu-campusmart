@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body class="wishlist-page">
+
+    <!-- TOP BAR -->
+    <div class="wishlist-topbar">
+        <a href="{{ url_for('home') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h2>My Wishlist</h2>
+        <div style="width: 24px;"></div>
+    </div>
+
+
+    <!-- PAGE HEADER -->
+    <div class="wishlist-header">
+        <div class="wishlist-header-icon">
+            <i class="fa-solid fa-heart"></i>
+        </div>
+        <h1>Saved for Later</h1>
+        <p>
+            {% if wishlist_items %}
+                You have <strong>{{ wishlist_items|length }}</strong> item{% if wishlist_items|length != 1 %}s{% endif %} in your wishlist.
+            {% else %}
+                Save products you love and find them here anytime.
+            {% endif %}
+        </p>
+    </div>
+
+
+    <!-- PRODUCTS -->
+    {% if wishlist_items %}
+
+    <div class="wishlist-grid">
+
+        {% for item in wishlist_items %}
+        <div class="wishlist-card">
+
+            <!-- Remove heart (top-left) -->
+            <a href="{{ url_for('wishlist_toggle', product_id=item[0]) }}"
+               class="wishlist-heart active"
+               title="Remove from wishlist">
+                <i class="fa-solid fa-heart"></i>
+            </a>
+
+            <!-- Product image (click to view) -->
+            <a href="{{ url_for('product_details', product_id=item[0]) }}"
+               class="wishlist-link">
+                <img src="{% if item[6].startswith('http') %}{{ item[6] }}{% else %}{{ url_for('uploaded_file', filename=item[6]) }}{% endif %}"
+                     alt="{{ item[1] }}">
+            </a>
+
+            <div class="wishlist-info">
+
+                <h3>
+                    <a href="{{ url_for('product_details', product_id=item[0]) }}">
+                        {{ item[1] }}
+                    </a>
+                </h3>
+
+                <p class="wishlist-price">
+                    ₦{{ "{:,.0f}".format(item[2]|float) }}
+                </p>
+
+                <p class="wishlist-location">
+                    <i class="fa-solid fa-location-dot"></i>
+                    {{ item[5] }}
+                </p>
+
+                <!-- Actions -->
+                <div class="wishlist-actions">
+
+                    <a href="{{ url_for('add_to_cart', product_id=item[0]) }}"
+                       class="wishlist-cart-btn">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Add to Cart
+                    </a>
+
+                    <a href="{{ url_for('wishlist_toggle', product_id=item[0]) }}"
+                       class="wishlist-remove-btn"
+                       title="Remove">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <!-- EMPTY STATE -->
+    <div class="wishlist-empty">
+
+        <div class="empty-icon">
+            <i class="fa-regular fa-heart"></i>
+        </div>
+
+        <h2>Your wishlist is empty</h2>
+        <p>Start saving products you love — tap the ❤️ on any product card.</p>
+
+        <a href="{{ url_for('home') }}" class="browse-btn">
+            <i class="fa-solid fa-box"></i>
+            Browse Products
+        </a>
+
+    </div>
+
+    {% endif %}
+
+    <!-- =========================================
+     TOAST NOTIFICATION
+     ========================================= -->
+{% if request.args.get('added') == '1' %}
+<div class="toast-notification" id="toast">
+    <div class="toast-icon">
+        <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="toast-body">
+    <strong>Added to cart!</strong>
+    <span>{{ session.get('last_added_product', 'Product') }}</span>
+    <a href="{{ url_for('cart') }}" class="toast-link">View Cart →</a>
+</div>
+    <button class="toast-close" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
+{% endif %}
+
+<br>
+<br>
+<br>
+<br>
+<!-- BOTTOM MENU -->
+    <div class="bottom-menu" id="bottomMenu" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #580a0a; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        
+        <a href="{{ url_for('home') }}" style="text-align: center; text-decoration: none; color: #f5ecec; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-house" style="font-size: 20px;"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="javascript:void(0);" onclick="alert('Vouchers are not available yet. Check back soon!');">
+    <i class="fa-solid fa-ticket" style="font-size: 20px;"></i>
+    <span>Voucher</span>
+</a>
+        <a href="{{ url_for('contact') }}" style="text-align: center; text-decoration: none; color: #faf4f4; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-headset" style="font-size: 20px;"></i>
+            <span>Support</span>
+        </a>
+
+        <a href="{{ url_for('cart') }}" style="text-align: center; text-decoration: none; color: #f3eeee; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-solid fa-cart-shopping" style="font-size: 20px;"></i>
+            <span>Cart</span>
+        </a>
+
+        <a href="{{ url_for('wishlist') }}" style="text-align: center; text-decoration: none; color: #f1ecec; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+            <i class="fa-regular fa-heart" style="font-size: 20px;"></i>
+            <span>Wishlist</span>
+        </a>
+
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('toast');
+
+        if (toast) {
+            // Slide in
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+    });
+</script>
+
+</body>
+</html>

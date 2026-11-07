@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pay Monthly Tax — LASU CampusMart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='payment.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body style="background-color: #f4f6fa;">
+
+    <div class="payment-card">
+        
+        <div class="payment-header">
+            <i class="fa-solid fa-receipt" style="color: #0b1aff;"></i>
+            <h2>Vendor Tax</h2>
+            <p>Pay ₦2,000 to keep your store active.</p>
+        </div>
+
+        {% if tax_status == 'Pending' %}
+            <div style="background: #fef3c7; color: #92400e; padding: 20px; border-radius: 8px; text-align: center;">
+                <i class="fa-solid fa-clock" style="font-size: 30px; margin-bottom: 10px;"></i>
+                <h3>Pending Admin Confirmation</h3>
+                <p style="font-size: 13px; margin-top: 5px;">Your payment is being verified. You will be notified shortly.</p>
+            </div>
+        {% elif tax_status == 'Paid' %}
+            <div style="background: #dcfce7; color: #166534; padding: 20px; border-radius: 8px; text-align: center;">
+                <i class="fa-solid fa-circle-check" style="font-size: 30px; margin-bottom: 10px;"></i>
+                <h3>Tax Paid Successfully!</h3>
+                <p style="font-size: 13px; margin-top: 5px;">Paid on: {{ tax_paid_at[:10] }}</p>
+                <p style="font-size: 11px; margin-top: 10px;">Next payment due next month.</p>
+            </div>
+        {% else %}
+            <form id="taxForm" action="{{ url_for('vendor_pay_tax') }}" method="POST">
+                <div style="margin-bottom: 15px;">
+                    <label class="form-label">Cardholder Name</label>
+                    <input type="text" class="form-input" placeholder="Name on card" required>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-input" placeholder="0000 0000 0000 0000" required>
+                </div>
+                <div class="input-row">
+                    <div class="input-group">
+                        <label class="form-label">Expiry</label>
+                        <input type="text" class="form-input" placeholder="MM/YY" required>
+                    </div>
+                    <div class="input-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-input" placeholder="123" required>
+                    </div>
+                </div>
+                <button type="submit" class="pay-btn">Pay ₦2,000</button>
+            </form>
+        {% endif %}
+
+        <a href="{{ url_for('vendor_dashboard') }}" class="cancel-link">← Back to Dashboard</a>
+    </div>
+
+    <script>
+        document.getElementById('taxForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // STOP the form from submitting instantly
+            
+            const submitBtn = this.querySelector('.pay-btn');
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Tax...';
+            submitBtn.style.opacity = '0.8';
+            submitBtn.style.backgroundColor = '#15803d';
+            
+            // Wait 2.5 seconds, THEN submit the form
+            setTimeout(() => {
+                this.submit();
+            }, 2500);
+        });
+    </script>
+
+</body>
+</html>

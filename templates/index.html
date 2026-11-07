@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lasu campmart</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='home.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+          integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+   <header>
+    <div class="navbar">
+
+        <a href="{{ url_for('home') }}" class="logo-brand">
+    <img src="{{ url_for('static', filename='img/lasu-logo.png') }}"
+         alt="LASU CampusMart"
+         class="logo-img">
+    <div class="logo-text">
+        <span class="logo-lasu">LASU</span>
+        <span class="logo-campus">CampusMart</span>
+    </div>
+</a>
+
+<!-- ACCOUNT SECTION -->
+            <div class="air" style="position: relative;">
+                
+                {% if session.get('user_id') %}
+                    <!-- LOGGED IN: Go to the smart redirect route -->
+                    <a href="{{ url_for('account_redirect') }}" title="My Account">
+                        <img src="{{ url_for('static', filename='img/circle-user-regular.png') }}" alt="Account">
+                    </a>
+                {% else %}
+                    <!-- LOGGED OUT: Account icon that opens the dropdown -->
+                    <a href="#" id="guestAccountBtn">
+                        <img src="{{ url_for('static', filename='img/circle-user-regular.png') }}" alt="Account">
+                    </a>
+
+                    <!-- THE DROPDOWN -->
+                    <div id="guestDropdown" class="dropdown-menu" style="display: none; position: absolute; top: 100%; right: 0; background: #4b0909; border: 1px solid #4b404067; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width: 180px; z-index: 1000; flex-direction: column;">
+                        
+                        <a href="{{ url_for('login') }}" style="padding: 14px 16px; text-decoration: none; color: #ffffff; border-bottom: 1px solid #eeeeee56; font-size: 14px; font-weight: 500;">
+                            <i class="fa-solid fa-right-to-bracket" style="margin-right: 8px; color: #0b1aff;"></i> Login
+                        </a>
+                        
+                        <a href="{{ url_for('vendor_portal') }}" style="padding: 14px 16px; text-decoration: none; color: #f5f5f5; font-size: 14px; font-weight: 500;">
+                              <i class="fa-solid fa-store" style="margin-right: 8px; color: #0b1aff;"></i> Vendor Portal
+                       </a>
+                        
+                    </div>
+                {% endif %}
+            </div>
+            
+
+        <!-- Hamburger (Desktop only) -->
+        <button class="hamburger" id="hamburgerBtn">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Desktop dropdown -->
+        <div class="desktop-dropdown" id="desktopDropdown">
+            <a href="{{ url_for('home') }}">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+            <a href="#">
+                <i class="fa-solid fa-ticket"></i> Voucher
+            </a>
+            <a href="{{ url_for('contact') }}">
+                <i class="fa-solid fa-headset"></i> Contact
+            </a>
+            <a href="{{ url_for('cart') }}">
+                <i class="fa-solid fa-cart-shopping"></i> Cart
+                {% if session.get('cart') %}
+                    ({{ session.get('cart')|length }})
+                {% endif %}
+            </a>
+            <a href="{{ url_for('wishlist')}}">
+                <i class="fa-regular fa-heart"></i> Wishlist
+            </a>
+        </div>
+
+    </div>
+</header>
+
+  <!-- SEARCH BAR -->
+<div class="search-container">
+    <form action="{{ url_for('search') }}" method="GET" class="search-form">
+        <input type="text" 
+               name="query" 
+               placeholder="Search for books, laptops, phones..." 
+               class="search-input" 
+               >
+        <button type="submit" class="search-btn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </form>
+</div>  
+
+    <div class="categories">
+
+    <a href="{{ url_for('home') }}">All</a>
+    <a href="{{ url_for('home', category='academic') }}">Academic</a>
+    <a href="{{ url_for('home', category='tech') }}">Tech</a>
+    <a href="{{ url_for('home', category='essentials') }}">Essentials</a>
+    <a href="{{ url_for('home', category='merch') }}">Merchandise</a>
+    <a href="{{ url_for('home', category='faculty') }}">Faculty</a>
+    <a href="{{ url_for('home', category='services') }}">Services</a>
+
+</div>
+    
+ 
+   <!-- =========================================
+     LASU CAMPUSMART CAROUSEL (Swiper.js)
+     ========================================= -->
+<div class="lasu-carousel swiper">
+
+    <div class="swiper-wrapper">
+
+        <!-- Slide 1: Welcome -->
+        <div class="swiper-slide">
+            <a href="{{ url_for('home') }}" class="slide-link">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Lagos_state_university_gate.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original"
+                     alt="Welcome">
+                <div class="slide-overlay">
+                    <span class="slide-tag">🎓 Welcome</span>
+                    <h2>Welcome to LASU CampusMart</h2>
+                    <p>Your one-stop shop for students, lecturers, and staff</p>
+                    <span class="slide-cta">Explore <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Slide 2: Academic -->
+        <div class="swiper-slide">
+            <a href="{{ url_for('home', category='academic') }}" class="slide-link">
+                <img src="https://csc.lasu.edu.ng/lasu_library/images/header.png"
+                     alt="Academic">
+                <div class="slide-overlay">
+                    <span class="slide-tag">📚 New Arrivals</span>
+                    <h2>Academic Materials for Every Course</h2>
+                    <p>Notebooks, calculators, pens — everything you need for lectures</p>
+                    <span class="slide-cta">Shop Academic <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Slide 3: LASU Merchandise -->
+        <div class="swiper-slide">
+            <a href="{{ url_for('home', category='merch') }}" class="slide-link">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQf6TUpWZCiCFerRibRXPSRZXLu8BVKjBlI8cLhHPAUg&s=10"
+                     alt="Merchandise">
+                <div class="slide-overlay">
+                    <span class="slide-tag">👕 Official</span>
+                    <h2>Wear Your LASU Pride</h2>
+                    <p>Official LASU-branded shirts, caps, and backpacks</p>
+                    <span class="slide-cta">Shop Merchandise <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Slide 4: Services -->
+        <div class="swiper-slide">
+            <a href="{{ url_for('home', category='services') }}" class="slide-link">
+                <img src="https://cdn.prod.website-files.com/5fce501fcd75040fbb504b90/6a81a47b7030a927f64c4fb7_6a81a45d20a138b758535e59_eldersuite-file-papers-in-client-documents-1200x630.png"
+                     alt="Services">
+                <div class="slide-overlay">
+                    <span class="slide-tag">🖨️ On Campus</span>
+                    <h2>Printing, Binding & Lamination</h2>
+                    <p>Get your documents ready at the ICT Centre — fast and affordable</p>
+                    <span class="slide-cta">Order Service <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Pagination dots -->
+    <div class="swiper-pagination"></div>
+
+    <!-- Navigation arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+
+</div>
+
+    <!-- PRODUCTS -->
+    <section class="product-section">
+
+        <h2>
+            {% if selected_category %}
+                {{ selected_category|capitalize }} Products
+            {% else %}
+                
+            {% endif %}
+        </h2>
+
+        <div class="product-grid">
+
+    {% for product in products %}
+
+    {% set p_stock = product[7] if product|length > 7 and product[7] is not none else 10 %}
+
+    <div class="product-card {% if p_stock <= 0 %}out-of-stock{% endif %}"
+         data-card
+         data-product-id="{{ product[0] }}">
+
+        <!-- ❤️ WISHLIST HEART -->
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('wishlist_toggle', product_id=product[0]) }}"
+           class="wishlist-heart {% if product[0] in wishlist_ids %}active{% endif %}">
+            <i class="{% if product[0] in wishlist_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+        </a>
+        {% endif %}
+
+        <!-- ❌ ADMIN DELETE -->
+        {% if session.get('is_admin') %}
+        <a href="{{ url_for('delete_product', product_id=product[0]) }}?next={{ url_for('home') }}"
+           class="delete-product-btn"
+           onclick="return confirm('Delete this product?');">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+        {% endif %}
+
+        <!-- 🏷️ STOCK RIBBON -->
+        {% if p_stock <= 0 %}
+            <span class="stock-ribbon out">Out of Stock</span>
+        {% elif p_stock <= 5 %}
+            <span class="stock-ribbon low">Only {{ p_stock }} left</span>
+        {% endif %}
+
+        <!-- MAIN LINK -->
+        <a href="{{ url_for('product_details', product_id=product[0]) }}"
+           class="product-link">
+            <img src="{% if product[6].startswith('http') %}{{ product[6] }}{% else %}{{ url_for('uploaded_file', filename=product[6]) }}{% endif %}"
+     alt="{{ product[1] }}">
+            <div class="product-info">
+                <h3>{{ product[1] }}</h3>
+                <p class="price">₦{{ "{:,.0f}".format(product[2]|float) }}</p>
+                <p>📍 {{ product[5] }}</p>
+                <p class="description">{{ product[4] }}</p>
+            </div>
+        </a>
+
+    </div>
+
+    {% else %}
+
+    <p>No products have been posted in this category yet.</p>
+
+    {% endfor %}
+
+</div>
+    </section>
+
+
+    <!-- BOTTOM MENU -->
+    <div class="bottom-menu" id="bottomMenu">
+
+        <a href="{{ url_for('home') }}">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+
+        <a href="javascript:void(0);" onclick="alert('Vouchers are not available yet. Check back soon!');">
+    <i class="fa-solid fa-ticket"></i>
+    <span>Voucher</span>
+</a>
+
+         <a href="{{ url_for('contact') }}">
+                <i class="fa-solid fa-headset"></i> 
+                <span>Contact</span>
+                  
+           </a>
+
+        <a href="{{ url_for('cart') }}">
+    <i class="fa-solid fa-cart-shopping"></i>
+
+    <span>
+        Cart
+
+        {% if session.get('cart') %}
+            ({{ session.get('cart')|length }})
+        {% endif %}
+    </span>
+</a>
+
+        <a href="{{ url_for('wishlist')}}">
+            <i class="fa-regular fa-heart"></i>
+            <span>Wishlist</span>
+        </a>
+
+    </div>
+
+
+    <script src="{{ url_for('static', filename='home.js') }}"></script>
+   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+</body>
+</html>
