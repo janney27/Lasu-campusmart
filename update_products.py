@@ -97,41 +97,62 @@ updates = [
 
 
         {
-                "current_name": "Name on site now",
-                "new_name": "New name",
-                "new_image": "Image URL",
-                "new_price": 1234
+                "current_name": "Bic Cristal Ballpoint Pen",
+                "new_name": "Vista Titan Ballpoint Pen - 50pcs",
+                "new_image": "https://www-konga-com-res.cloudinary.com/image/upload/f_auto,q_auto,w_640,c_limit/media/catalog/product/E/K/62214_1793379415.jpg",
+                "new_price": 6500
      },
 
      {
-             "current_name": "Name on site now",
-             "new_name": "New name",
-             "new_image": "Image URL",
-             "new_price": 1234
+             "current_name": "Ugreen USB-C to USB-C Cable",
+             "new_name": "SupDevice 3 in 1 USB Charging Cable for iPhone/Type-C/Micro USB Charger Cable for iPhone 14 13 12 Pro Max Xs Max Charger Cable for Redmi, OnePlus, SamSung USB C Mobile Phones,",
+             "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/65/8050024/2.jpg?3067",
+             "new_price": 1200
     },
 
 
     {
-            "current_name": "Name on site now",
-            "new_name": "New name",
-            "new_image": "Image URL",
-            "new_price": 1234
+            "current_name": "LASU-Branded Polo Shirt",
+            "new_name": "TOUPHY T-Shirts +Shorts 100% Cotton Men's Short Sleeve Set-White",
+            "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/64/986649/1.jpg?6662",
+            "new_price": 9000
     },
 
 
     {
-            "current_name": "Name on site now",
-            "new_name": "New name",
-            "new_image": "Image URL",
-            "new_price": 1234
+            "current_name": "LASU-Branded T-Shirt",
+            "new_name": "Corporate Quality Office Long Sleeve Shirt",
+            "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/69/7419914/1.jpg?5563",
+            "new_price": 34000
     },
 
 
     {
-            "current_name": "Name on site now",
-            "new_name": "New name",
-            "new_image": "Image URL",
-            "new_price": 1234
+            "current_name": "LASU-Branded Face Cap",
+            "new_name": "LADIES STAR-PRINTED LONG SLEEVE TOP AND TROUSER",
+            "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/76/2426814/1.jpg?6078",
+            "new_price": 12550
+   },
+
+   {
+               "current_name": "HP Laptop Stand",
+               "new_name": "GUEETON Plastic Foldable Adjustable Stand Holder For Laptop White",
+               "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/00/8161622/3.jpg?5646",
+               "new_price": 2534
+    },
+
+      {
+                  "current_name": "LASU-Branded Backpack",
+                  "new_name": "Men Sling Bag Pack With Lock Waterproof Anti-Theft Chest Bag",
+                  "new_image": "https://ng.jumia.is/unsafe/fit-in/680x680/filters:fill(white)/product/25/5206943/1.jpg?3867",
+                  "new_price": 1234
+    },
+
+         {
+                     "current_name": "Name on site now",
+                     "new_name": "New name",
+                     "new_image": "Image URL",
+                     "new_price": 1234
    },
 ]
 
