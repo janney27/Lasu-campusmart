@@ -22,7 +22,7 @@ body {
 }
 
 .logo-img {
-    height: 45px;         /* ← Variation A: bigger */
+    height: 45px;         
     width: 45px;
     object-fit: cover;
     border-radius: 50%;
@@ -2417,7 +2417,89 @@ a.btn-wishlist:hover {
 
 }
 
-/* RESPONSIVE */
+/* =========================================
+   FIX MOBILE ZOOM & JUMIA CARD SIZES
+   ========================================= */
+@media screen and (max-width: 768px) {
+    /* Prevent Mobile Zoom */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="search"],
+    select,
+    textarea,
+    .input-form,
+    .auth-form input,
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px !important;
+    }
+
+    /* Jumia-Style 2-Column Grid */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding: 10px !important;
+    }
+
+    .product-card {
+        border-radius: 8px !important;
+        padding: 0 !important;
+    }
+
+    .product-card img {
+        height: 140px !important;
+        object-fit: cover !important;
+    }
+
+    .product-info {
+        padding: 8px !important;
+    }
+
+    .product-info h3 {
+        font-size: 13px !important;
+        font-weight: normal !important;
+        line-height: 1.3 !important;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-info .price {
+        font-size: 15px !important;
+        margin: 4px 0 !important;
+    }
+
+    .product-info p {
+        font-size: 11px !important;
+        margin: 0 !important;
+    }
+
+    .product-info .description {
+        display: none !important;
+    }
+
+    /* Shrink Heart & Ribbon for small cards */
+    .wishlist-heart {
+        width: 30px !important;
+        height: 30px !important;
+        top: 8px !important;
+        left: 8px !important;
+        font-size: 14px !important;
+    }
+
+    .stock-ribbon {
+        font-size: 9px !important;
+        padding: 3px 8px !important;
+        top: 8px !important;
+        right: 8px !important;
+    }
+}
+
 @media (max-width: 480px) {
     .cart-item {
         padding: 15px;
@@ -2480,16 +2562,6 @@ a.btn-wishlist:hover {
 
 
 @media (max-width: 600px) {
-    
-    .product-grid{
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .product-card img {
-        height: 160px;
-    }
-
    header {
     height: 60px;
    }
@@ -2513,27 +2585,20 @@ a.btn-wishlist:hover {
    .air {
     margin-left: 15px;
    }
-   
-   
 }
 
 
 
 @media (min-width: 769px) {
-
     .bottom-menu {
         position: fixed;
-
         left: -220px;
         bottom: auto;
         top: 0;
-
         width: 220px;
         height: 100vh;
-
         flex-direction: column;
         justify-content: center;
-
         transition: left 0.3s ease;
     }
 
@@ -2544,10 +2609,8 @@ a.btn-wishlist:hover {
     .bottom-menu a {
         width: 100%;
         padding: 18px 0;
-
         flex-direction: row;
         justify-content: flex-start;
-
         gap: 15px;
         padding-left: 35px;
     }
@@ -2555,24 +2618,6 @@ a.btn-wishlist:hover {
     .air img{
        width: 50px;
     }
-
-     .slides {
-        height: 250px;
-    }
-
-    .caption {
-        font-size: 15px;
-        left: 15px;
-        bottom: 15px;
-    }
-
-    .prev, .next {
-        padding: 8px 12px;
-        font-size: 16px;
-    }
-
-    .prev { left: 10px; }
-    .next { right: 10px; }
 
     .hamburger {
         display: block !important; 
@@ -2594,85 +2639,9 @@ a.btn-wishlist:hover {
         display: flex !important;
     }
 
-    .main-product-image {
-        height: 260px;
-    }
-
-    .product-title {
-        font-size: 18px;
-    }
-
-    .product-price {
-        font-size: 20px;
-    }
-
-    .btn-add-cart,
-    .btn-wishlist {
-        font-size: 14px;
-        padding: 12px;
-    }
-
-     .categories{
+    .categories{
         justify-content: center;
         flex-wrap: wrap;
         overflow-x: visible;
-     }
-
-      .lasu-carousel {
-        height: 280px;
-        border-radius: 12px;
-        margin: 15px 10px;
-    }
-
-    .lasu-carousel .slide-overlay {
-        padding: 0 25px;
-    }
-
-    .slide-overlay h2 {
-        font-size: 22px;
-        max-width: 100%;
-    }
-
-    .slide-overlay p {
-        font-size: 13px;
-        max-width: 100%;
-        margin-bottom: 15px;
-    }
-
-    .slide-tag {
-        font-size: 10px;
-        padding: 4px 10px;
-        margin-bottom: 10px;
-    }
-
-    .slide-cta {
-        font-size: 12px;
-        padding: 9px 18px;
-    }
-
-    .lasu-carousel .swiper-button-next,
-    .lasu-carousel .swiper-button-prev {
-        display: none; /* Hide arrows on mobile — users swipe */
-    }
-
-    .main-product-image {
-        height: 280px;
-        padding: 15px;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    input[type="email"],
-    input[type="password"],
-    input[type="tel"],
-    input[type="search"],
-    select,
-    textarea,
-    .input-form,
-    .auth-form input,
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        font-size: 16px !important;
     }
 }
