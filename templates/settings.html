@@ -89,10 +89,12 @@
     <!-- DANGER ZONE -->
     <div class="section-title">Danger Zone</div>
     <div class="menu-list">
-        <a href="#" class="menu-item" onclick="if(confirm('Are you sure you want to close your account? This cannot be undone.')) { alert('Account deletion request received.'); }" style="color: #ff4c4c;">
-            <div class="menu-item-left" style="color: #ff4c4c;"><i class="fa-solid fa-user-slash" style="color: #ff4c4c;"></i> Close Account</div>
-            <i class="fa-solid fa-chevron-right" style="color: #ff4c4c;"></i>
-        </a>
+      <a href="#" class="menu-item" onclick="event.preventDefault(); if (confirm('Are you sure you want to close your account? This cannot be undone.')) { fetch('/close-account', { method: 'POST' }).then(() => { window.location.href = '/register'; }); }" style="color: #ff4c4c;">
+  <div class="menu-item-left" style="color: #ff4c4c;">
+    <i class="fa-solid fa-user-slash" style="color: #ff4c4c;"></i> Close Account
+  </div>
+  <i class="fa-solid fa-chevron-right" style="color: #ff4c4c;"></i>
+</a>  
     </div>
 
 </body>
