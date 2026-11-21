@@ -3,6 +3,32 @@ from flask import Flask, render_template, request, redirect, send_from_directory
 from flask_mail import Mail, Message
 import sqlite3
 import os
+import requests
+def send_welcome_email(to_email, full_name):
+    api_key = os.environ.get("RESEND_API_KEY")
+    if not api_key:
+        print("Email skipped: RESEND_API_KEY not set")
+        return
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": "LASU CampusMart <onboarding@resend.dev>",
+                "to": [to_email],
+                "subject": "Welcome to LASU CampusMart!",
+                "html": f"<h3>Hi {full_name},</h3><p>Your account has been created successfully. You can now start shopping!</p>",
+            },
+            timeout=5,
+        )
+        print(f"Resend status: {resp.status_code} {resp.text}")
+    except Exception as e:
+        print(f"Email skipped: {e}")
+
+
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -685,14 +711,9 @@ def register():
 
         if errors:
             return render_template("register.html", errors=errors, form_data=form_data)
+        send_welcome_email(email, full_name)
 
-        try:
-            msg = Message("Welcome to LASU CampusMart!", recipients=[email])
-            msg.html = f"<h3>Hi {full_name},</h3><p>Your account has been created successfully. You can now start shopping!</p>"
-            mail.send(msg)
-        except Exception as e:
-            print(f"❌ Registration email failed: {e}")
-
+      
         return redirect("/login?registered=1")
 
     return render_template("register.html")
