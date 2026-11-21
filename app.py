@@ -48,6 +48,47 @@ def create_database():
             address TEXT NOT NULL, city TEXT NOT NULL, total REAL NOT NULL, status TEXT DEFAULT 'Pending', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS wishlist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        product_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, product_id)
+       )
+   """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            matric_or_staff_id TEXT NOT NULL,
+            role TEXT NOT NULL,
+            password_hash TEXT NOT NULL,
+            phone TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS vendors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            full_name TEXT NOT NULL,
+            business_name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            category TEXT NOT NULL,
+            description TEXT,
+            status TEXT DEFAULT 'Pending',
+            tax_status TEXT DEFAULT 'Unpaid',
+            tax_paid_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    
     connection.commit()
     connection.close()
 
@@ -1030,6 +1071,8 @@ def send_message(product_id):
         return redirect(f"/product/{product_id}?message_sent=1")
     return redirect(f"/product/{product_id}")
 
+
+create_database()
+
 if __name__ == "__main__":
-    create_database()
     app.run(debug=True)
