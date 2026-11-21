@@ -1111,6 +1111,23 @@ def send_message(product_id):
         return redirect(f"/product/{product_id}?message_sent=1")
     return redirect(f"/product/{product_id}")
 
+@app.route("/close-account", methods=["POST"])
+def close_account():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    try:
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        connection.commit()
+        connection.close()
+    except Exception as e:
+        print(f"Account delete error: {e}")
+
+    session.clear()
+    return redirect("/register")
 
 create_database()
 
