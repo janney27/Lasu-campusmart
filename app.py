@@ -633,7 +633,8 @@ def admin_confirm_tax(vendor_id):
 # =========================
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if session.get("user_id"): return redirect("/")
+    if session.get("user_id"):
+        return redirect("/")
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -642,40 +643,58 @@ def register():
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
         phone = request.form.get("phone", "").strip()
+
         errors = []
-        if not (full_name and email and matric_or_staff_id and role and password): errors.append("All fields are required.")
-        if len(password) < 6: errors.append("Password must be at least 6 characters.")
-        if password != confirm_password: errors.append("Passwords do not match.")
-        if role not in ["student", "lecturer", "staff"]: errors.append("Invalid role selected.")
-        
+        if not (full_name and email and matric_or_staff_id and role and password):
+            errors.append("All fields are required.")
+        if len(password) < 6:
+            errors.append("Password must be at least 6 characters.")
+        if password != confirm_password:
+            errors.append("Passwords do not match.")
+        if role not in ["student", "lecturer", "staff"]:
+            errors.append("Invalid role selected.")
+
+        form_data = {
+            "full_name": full_name,
+            "email": email,
+            "matric_or_staff_id": matric_or_staff_id,
+            "role": role,
+            "phone": phone,
+        }
+
         if not errors:
-            connection = sqlite3.connect("marketplace.db")
-            cursor = connection.cursor()
-            cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
-            if cursor.fetchone(): errors.append("An account with this email already exists.")
-            connection.close()
+            try:
+                connection = sqlite3.connect(DB_PATH)
+                cursor = connection.cursor()
+                cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+                if cursor.fetchone():
+                    errors.append("An account with this email already exists.")
+                else:
+                    password_hash = generate_password_hash(password)
+                    cursor.execute("""
+                        INSERT INTO users (full_name, email, matric_or_staff_id, role, password_hash, phone)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (full_name, email, matric_or_staff_id, role, password_hash, phone))
+                    connection.commit()
+                connection.close()
+            except sqlite3.IntegrityError:
+                errors.append("An account with this email already exists.")
+            except Exception as e:
+                print(f"❌ Registration DB error: {e}")
+                errors.append("Something went wrong while creating your account. Please try again.")
 
         if errors:
-            return render_template("register.html", errors=errors, form_data={"full_name": full_name, "email": email, "matric_or_staff_id": matric_or_staff_id, "role": role, "phone": phone})
+            return render_template("register.html", errors=errors, form_data=form_data)
 
-        password_hash = generate_password_hash(password)
-        connection = sqlite3.connect("marketplace.db")
-        cursor = connection.cursor()
-        cursor.execute("""
-            INSERT INTO users (full_name, email, matric_or_staff_id, role, password_hash, phone) VALUES (?, ?, ?, ?, ?, ?)
-        """, (full_name, email, matric_or_staff_id, role, password_hash, phone))
-        connection.commit()
-        connection.close()
-
-        # Registration Email
         try:
             msg = Message("Welcome to LASU CampusMart!", recipients=[email])
             msg.html = f"<h3>Hi {full_name},</h3><p>Your account has been created successfully. You can now start shopping!</p>"
             mail.send(msg)
-            print(f"✅ Registration email sent to {email}")
-        except Exception as e: print(f"❌ Registration email failed: {e}")
+        except Exception as e:
+            print(f"❌ Registration email failed: {e}")
 
         return redirect("/login?registered=1")
+
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
