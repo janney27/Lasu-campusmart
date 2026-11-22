@@ -1533,17 +1533,21 @@ def vendor_signup():
                 error="Please fill in all required fields.",
             )
 
-        with get_db_connection() as connection:
-            connection.execute(
-                """
-                INSERT INTO vendors
-                (full_name, business_name, email, phone, category, description)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (full_name, business_name, email, phone, category, description),
-            )
-        return redirect(f"/vendor-signup?success=1&email={email}")
-
+        try:
+            with get_db_connection() as connection:
+                connection.execute(
+                    """
+                    INSERT INTO vendors
+                    (full_name, business_name, email, phone, category, description)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (full_name, business_name, email, phone, category, description),
+                )
+            return redirect(f"/vendor-signup?success=1&email={email}")
+        except Exception as e:
+            print("VENDOR ERROR:", e) 
+            return f"Database Error: {e}", 500
+    
     success = request.args.get("success") == "1"
     email_to_check = request.args.get("email", "").strip().lower()
     if not email_to_check and session.get("user_id"):
