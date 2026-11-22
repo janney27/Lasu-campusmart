@@ -1,11 +1,8 @@
 import os
+import sqlite3
 import secrets
 from pathlib import Path
 from contextlib import contextmanager
-
-import psycopg2
-from psycopg2.extras import DictCursor
-import requests
 
 import requests
 from flask import Flask, render_template, request, redirect, send_from_directory, session, abort
@@ -20,6 +17,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "marketplace.db"
 UPLOAD_FOLDER = BASE_DIR / "uploads"
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 
@@ -93,45 +91,19 @@ def send_mail_message(subject, recipients, html):
         print(f"Email failed: {exc}")
 
 
-    # ------------------------------------------------------------
-# POSTGRESQL DATABASE
 # ------------------------------------------------------------
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is missing. Add it in Render Environment.")
-
-class DatabaseConnection:
-    """Small compatibility layer for the existing connection.execute() code."""
-
-    def __init__(self, connection):
-        self.connection = connection
-
-    def execute(self, sql, params=()):
-        cursor = self.connection.cursor()
-        sql = sql.replace("?", "%s")
-        cursor.execute(sql, params)
-        return cursor
-
-    def executescript(self, script):
-        cursor = self.connection.cursor()
-        for statement in script.split(";"):
-            if statement.strip():
-                cursor.execute(statement)
-        return cursor
-
-
+# DATABASE
+# Every route MUST use get_db_connection(). Do not use a
+# relative sqlite3.connect('marketplace.db') anywhere else.
+# ------------------------------------------------------------
 @contextmanager
 def get_db_connection():
-    connection = psycopg2.connect(
-        DATABASE_URL,
-        cursor_factory=DictCursor,
-        connect_timeout=15,
-    )
-    db = DatabaseConnection(connection)
-
+    """Open one connection, commit successful work, and always close it."""
+    connection = sqlite3.connect(str(DB_PATH), timeout=20)
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
     try:
-        yield db
+        yield connection
         connection.commit()
     except Exception:
         connection.rollback()
@@ -141,31 +113,23 @@ def get_db_connection():
 
 
 def add_column_if_missing(connection, table_name, column_name, column_definition):
-    result = connection.execute(
-        """
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_schema = current_schema()
-          AND table_name = ?
-          AND column_name = ?
-        """,
-        (table_name, column_name),
-    ).fetchone()
-
-    if not result:
+    existing = {
+        row["name"]
+        for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+    }
+    if column_name not in existing:
         connection.execute(
             f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
         )
 
 
 def create_database():
-    """Create all application tables in PostgreSQL."""
-
+    """Create tables and safely add columns missing from older project databases."""
     with get_db_connection() as connection:
         connection.executescript(
             """
             CREATE TABLE IF NOT EXISTS users (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 full_name TEXT NOT NULL,
                 email TEXT NOT NULL UNIQUE,
                 matric_or_staff_id TEXT NOT NULL,
@@ -176,9 +140,9 @@ def create_database():
             );
 
             CREATE TABLE IF NOT EXISTS products (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 product_name TEXT NOT NULL,
-                price DOUBLE PRECISION NOT NULL,
+                price REAL NOT NULL,
                 category TEXT NOT NULL,
                 description TEXT NOT NULL,
                 location TEXT NOT NULL,
@@ -187,12 +151,12 @@ def create_database():
             );
 
             CREATE TABLE IF NOT EXISTS orders (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 full_name TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 address TEXT NOT NULL,
                 city TEXT NOT NULL,
-                total DOUBLE PRECISION NOT NULL,
+                total REAL NOT NULL,
                 status TEXT DEFAULT 'Pending',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 items_summary TEXT DEFAULT '',
@@ -200,15 +164,17 @@ def create_database():
             );
 
             CREATE TABLE IF NOT EXISTS wishlist (
-                id BIGSERIAL PRIMARY KEY,
-                user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                product_id INTEGER NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(user_id, product_id)
+                UNIQUE(user_id, product_id),
+                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
             );
 
             CREATE TABLE IF NOT EXISTS vendors (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 full_name TEXT NOT NULL,
                 business_name TEXT NOT NULL,
                 email TEXT NOT NULL,
@@ -222,7 +188,7 @@ def create_database():
             );
 
             CREATE TABLE IF NOT EXISTS messages (
-                id BIGSERIAL PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_phone TEXT NOT NULL,
                 title TEXT NOT NULL,
                 message TEXT NOT NULL,
@@ -230,8 +196,8 @@ def create_database():
             );
 
             CREATE TABLE IF NOT EXISTS chats (
-                id BIGSERIAL PRIMARY KEY,
-                product_id BIGINT,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER,
                 sender_email TEXT NOT NULL,
                 receiver_email TEXT NOT NULL,
                 message TEXT NOT NULL,
@@ -240,28 +206,14 @@ def create_database():
             """
         )
 
-        add_column_if_missing(
-            connection, "products", "stock", "INTEGER NOT NULL DEFAULT 0"
-        )
-        add_column_if_missing(
-            connection, "orders", "items_summary", "TEXT DEFAULT ''"
-        )
-        add_column_if_missing(
-            connection, "orders", "vendor_confirmed", "INTEGER DEFAULT 0"
-        )
+        # Migrate existing databases without deleting existing rows.
+        add_column_if_missing(connection, "products", "stock", "INTEGER NOT NULL DEFAULT 0")
+        add_column_if_missing(connection, "orders", "items_summary", "TEXT DEFAULT ''")
+        add_column_if_missing(connection, "orders", "vendor_confirmed", "INTEGER DEFAULT 0")
+        connection.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+        connection.execute("CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(phone)")
+        connection.execute("CREATE INDEX IF NOT EXISTS idx_messages_phone ON messages(user_phone)")
 
-        connection.execute(
-            "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"
-        )
-        connection.execute(
-            "CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(phone)"
-        )
-        connection.execute(
-            "CREATE INDEX IF NOT EXISTS idx_messages_phone ON messages(user_phone)"
-        )
-
-
-       
 
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
@@ -665,7 +617,7 @@ def process_payment():
                 INSERT INTO orders
                 (full_name, phone, address, city, total, status, created_at, items_summary)
                 VALUES (?, ?, ?, ?, ?, 'Paid', CURRENT_TIMESTAMP, ?)
-                RETURNING id """
+                """,
                 (
                     details["full_name"],
                     details["phone"],
@@ -675,7 +627,7 @@ def process_payment():
                     ", ".join(items_bought),
                 ),
             )
-            order_id = cursor.fetchone()["id"]
+            order_id = cursor.lastrowid
 
             connection.execute(
                 """
@@ -740,7 +692,7 @@ def process_payment():
                 f"for ₦{final_total:,.2f}.</p>",
             )
 
-    except psycopg2.Error as exc:
+    except sqlite3.Error as exc:
         app.logger.exception("Could not process order")
         return "There was a database problem processing your order. Please try again.", 500
 
@@ -1145,9 +1097,9 @@ def register():
                                 phone,
                             ),
                         )
-            except psycopg2.IntegrityError:
+            except sqlite3.IntegrityError:
                 errors.append("An account with this email already exists.")
-            except psycopg2.Error:
+            except sqlite3.Error:
                 app.logger.exception("Registration database error")
                 errors.append("Something went wrong while creating your account. Please try again.")
 
@@ -1302,7 +1254,7 @@ def wishlist_toggle(product_id):
         else:
             if product:
                 connection.execute(
-                 "INSERT INTO wishlist (user_id, product_id) VALUES (?, ?) ON CONFLICT (user_id, product_id) DO NOTHING",
+                    "INSERT OR IGNORE INTO wishlist (user_id, product_id) VALUES (?, ?)",
                     (user_id, product_id),
                 )
             action = "added"
@@ -1533,21 +1485,17 @@ def vendor_signup():
                 error="Please fill in all required fields.",
             )
 
-        try:
-            with get_db_connection() as connection:
-                connection.execute(
-                    """
-                    INSERT INTO vendors
-                    (full_name, business_name, email, phone, category, description)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                    (full_name, business_name, email, phone, category, description),
-                )
-            return redirect(f"/vendor-signup?success=1&email={email}")
-        except Exception as e:
-            print("VENDOR ERROR:", e) 
-            return f"Database Error: {e}", 500
-    
+        with get_db_connection() as connection:
+            connection.execute(
+                """
+                INSERT INTO vendors
+                (full_name, business_name, email, phone, category, description)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (full_name, business_name, email, phone, category, description),
+            )
+        return redirect(f"/vendor-signup?success=1&email={email}")
+
     success = request.args.get("success") == "1"
     email_to_check = request.args.get("email", "").strip().lower()
     if not email_to_check and session.get("user_id"):
@@ -1848,7 +1796,7 @@ def close_account():
         with get_db_connection() as connection:
             connection.execute("DELETE FROM wishlist WHERE user_id = ?", (user_id,))
             connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
-    except psycopg2.Error:
+    except sqlite3.Error:
         app.logger.exception("Account deletion failed")
         return "Could not close the account. Please try again.", 500
 
