@@ -761,7 +761,7 @@ def admin_login():
         return redirect("/admin")
     if request.method == "POST":
         supplied_password = request.form.get("password", "")
-        configured_password = os.environ.get("JANNEY27", "")
+        configured_password = os.environ.get("ADMIN_PASSWORD", "")
         if configured_password and secrets.compare_digest(
             supplied_password, configured_password
         ):
