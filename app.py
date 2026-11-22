@@ -928,9 +928,45 @@ def admin_orders():
         search=search_term,
         status_counts=status_counts,
     )
-
 @app.route("/admin/orders/update/<int:order_id>", methods=["POST"])
 def admin_update_order_status(order_id):
+    if not admin_required():
+        return "Not allowed", 403
+        
+    new_status = request.form.get("status", "Pending")
+    
+    with get_db_connection() as connection:
+        order = connection.execute(
+            "SELECT phone FROM orders WHERE id = ?", (order_id,)
+        ).fetchone()
+        
+        if not order:
+            return "Order not found", 404
+
+        connection.execute(
+            "UPDATE orders SET status = ? WHERE id = ?",
+            (new_status, order_id),
+        )
+        
+        # ADDED "Cancelled" TO THIS LIST BELOW
+        if new_status in ("Vendor Confirmed", "Shipped", "Delivered", "Cancelled"):
+            user_phone = order["phone"]
+            
+            if user_phone:
+                try:
+                    connection.execute(
+                        "INSERT INTO messages (user_phone, title, message) VALUES (?, ?, ?)",
+                        (
+                            user_phone,
+                            f"Order {new_status}",
+                            f"Your order #{order_id} status has been updated to: {new_status}.",
+                        ),
+                    )
+                except sqlite3.Error as e:
+                    app.logger.error(f"Failed to insert message for order {order_id}: {e}")
+                    
+    return redirect("/admin/orders")
+
     if not admin_required():
         return "Not allowed", 403
         
@@ -1439,11 +1475,12 @@ def cancel_order(order_id):
         user = connection.execute(
             "SELECT phone FROM users WHERE id = ?", (user_id,)
         ).fetchone()
+        
         if not user or not user["phone"]:
             return redirect("/my-orders")
 
-        # A user can cancel only an order associated with their own phone.
-        connection.execute(
+        # We use cursor to check if the order was actually cancelled
+        cursor = connection.execute(
             """
             UPDATE orders
             SET status = 'Cancelled'
@@ -1453,9 +1490,19 @@ def cancel_order(order_id):
             (order_id, user["phone"]),
         )
 
+        # If the order was successfully cancelled (rowcount > 0), send the message
+        if cursor.rowcount > 0:
+            connection.execute(
+                "INSERT INTO messages (user_phone, title, message) VALUES (?, ?, ?)",
+                (
+                    user["phone"],
+                    "Order Cancelled",
+                    f"Your order #{order_id} has been successfully cancelled.",
+                ),
+            )
+
     return redirect("/my-orders")
-
-
+    
 @app.route("/inbox")
 def inbox():
     user_id = session.get("user_id")
