@@ -929,31 +929,45 @@ def admin_orders():
         status_counts=status_counts,
     )
 
-
 @app.route("/admin/orders/update/<int:order_id>", methods=["POST"])
 def admin_update_order_status(order_id):
     if not admin_required():
         return "Not allowed", 403
+        
     new_status = request.form.get("status", "Pending")
+    
     with get_db_connection() as connection:
         order = connection.execute(
             "SELECT phone FROM orders WHERE id = ?", (order_id,)
         ).fetchone()
+        
+        if not order:
+            return "Order not found", 404
+
         connection.execute(
             "UPDATE orders SET status = ? WHERE id = ?",
             (new_status, order_id),
         )
-        if order and new_status in ("Vendor Confirmed", "Shipped", "Delivered"):
-            connection.execute(
-                "INSERT INTO messages (user_phone, title, message) VALUES (?, ?, ?)",
-                (
-                    order["phone"],
-                    f"Order {new_status}",
-                    f"Your order #{order_id} status has been updated to: {new_status}.",
-                ),
-            )
+        
+        # Only try to insert a message if the status requires it AND a phone number exists
+        if new_status in ("Vendor Confirmed", "Shipped", "Delivered"):
+            user_phone = order["phone"]
+            
+            if user_phone: # Safety check to prevent 500 errors
+                try:
+                    connection.execute(
+                        "INSERT INTO messages (user_phone, title, message) VALUES (?, ?, ?)",
+                        (
+                            user_phone,
+                            f"Order {new_status}",
+                            f"Your order #{order_id} status has been updated to: {new_status}.",
+                        ),
+                    )
+                except sqlite3.Error as e:
+                    # Log the error but don't crash the whole page
+                    app.logger.error(f"Failed to insert message for order {order_id}: {e}")
+                    
     return redirect("/admin/orders")
-
 
 @app.route("/admin/vendors")
 def admin_vendors():
