@@ -698,7 +698,7 @@ def process_payment():
 
     session.pop("cart", None)
     session.pop("checkout_details", None)
-    return render_template("Order_success.html", total=final_total, order_id=order_id)
+    return render_template("order_success.html", total=final_total, order_id=order_id)
 
 
 @app.route("/carousel")
